@@ -3,15 +3,21 @@
 @section('title', 'BrainBites | '.$post->title)
 
 @section('content')
-    <section class="bb-cosmic-banner mb-8" data-three-wrapper>
+    <section class="bb-cosmic-banner mb-8">
         <div>
-            <p class="bb-chip">Deep Dive Mode</p>
+            <p class="bb-chip">Deep Dive</p>
             <h1 class="bb-title-font mt-3 text-4xl text-white sm:text-5xl">{{ $post->title }}</h1>
             <p class="mt-3 max-w-2xl text-sm text-cyan-100/85 sm:text-base">{{ $post->summary }}</p>
         </div>
 
-        <div class="bb-model-visual min-h-[220px]">
-            <canvas class="bb-model-canvas" data-three-model="atom" aria-hidden="true"></canvas>
+        <div class="bb-focus-card" id="readingTools">
+            <h2 class="text-lg font-bold text-white">Reading Tools</h2>
+            <p class="mt-2 text-sm text-cyan-100/85">Tune readability instantly while you explore this answer.</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button class="bb-button-secondary border-white/30 bg-white/10 text-white hover:bg-white/20" type="button" data-font-size="small">A-</button>
+                <button class="bb-button-secondary border-white/30 bg-white/10 text-white hover:bg-white/20" type="button" data-font-size="normal">A</button>
+                <button class="bb-button-secondary border-white/30 bg-white/10 text-white hover:bg-white/20" type="button" data-font-size="large">A+</button>
+            </div>
         </div>
     </section>
 
@@ -28,7 +34,7 @@
                 class="mt-6 h-72 w-full rounded-2xl object-cover sm:h-96"
             >
 
-            <div class="prose mt-6 max-w-none text-slate-700 prose-headings:text-slate-900 prose-a:text-cyan-700">
+            <div id="postContent" class="prose mt-6 max-w-none text-slate-700 prose-headings:text-slate-900 prose-a:text-cyan-700">
                 {!! nl2br(e($post->body)) !!}
             </div>
 
@@ -59,14 +65,11 @@
         </div>
 
         <aside class="space-y-4">
-            <div class="bb-card" data-three-wrapper>
+            <div class="bb-card">
                 <h2 class="text-lg font-bold text-slate-900">Post details</h2>
                 <p class="mt-2 text-sm text-slate-600">Published: {{ optional($post->published_at)->format('M d, Y') ?? 'Draft' }}</p>
                 <p class="mt-1 text-sm text-slate-600">Visibility: {{ $post->is_public ? 'Public' : 'Private draft' }}</p>
-
-                <div class="bb-model-visual mt-4 min-h-[180px]">
-                    <canvas class="bb-model-canvas" data-three-model="crystal" aria-hidden="true"></canvas>
-                </div>
+                <p class="mt-1 text-sm text-slate-600">Category: {{ $post->category->name }}</p>
             </div>
 
             @if ($relatedPosts->isNotEmpty())

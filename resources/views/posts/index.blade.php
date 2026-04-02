@@ -5,19 +5,19 @@
 @section('content')
     <section class="bb-hero-grid mb-8">
         <div class="bb-hero-content">
-            <p class="bb-kicker">Immersive Science Discovery</p>
+            <p class="bb-kicker">Curiosity Explorer</p>
             <h1 class="bb-title-font text-4xl leading-tight text-white sm:text-5xl lg:text-6xl">
                 Not another wall of text.
-                <span class="block text-cyan-200">A visual playground for curious minds.</span>
+                <span class="block text-cyan-200">A visual map of what people are actually asking.</span>
             </h1>
 
             <p class="mt-5 max-w-xl text-sm text-cyan-50/90 sm:text-base">
-                Explore animated, image-rich explanations for "why", "how", and "when" questions.
-                BrainBites is built to pull students, parents, and casual browsers into discovery in seconds.
+                The interactive topic map is driven by your real categories and live post volume.
+                Hover nodes to inspect topics and click any orbit to jump straight into that stream of questions.
             </p>
 
             <div class="mt-6 flex flex-wrap gap-3">
-                <a href="#latest" class="bb-button">Dive Into Questions</a>
+                <a href="#topic-universe" class="bb-button">Explore Topic Universe</a>
                 @guest
                     <a href="{{ route('register') }}" class="bb-button-secondary border-white/30 bg-white/10 text-white hover:bg-white/20">Start Contributing</a>
                 @else
@@ -26,38 +26,36 @@
             </div>
         </div>
 
-        <div class="bb-hero-visual" data-three-wrapper>
-            <canvas id="brainbites-hero-canvas" class="bb-hero-canvas" data-three-model="hero" aria-hidden="true"></canvas>
-            <span class="bb-orbit-chip -a">Live 3D Orbit</span>
-            <span class="bb-orbit-chip -b">Interactive Cards</span>
-            <span class="bb-orbit-chip -c">Fast Discovery</span>
+        <div class="bb-topic-map" id="topic-universe" data-topic-map-wrapper>
+            @if ($categoryMapData->isNotEmpty())
+                <canvas id="topic-map-canvas" class="bb-topic-map-canvas" data-topic-map-canvas aria-hidden="true"></canvas>
+
+                <div class="bb-topic-hud">
+                    <p id="topicMapTitle" class="text-sm font-bold text-white">Hover a topic node</p>
+                    <p id="topicMapMeta" class="mt-1 text-xs text-cyan-100/90">See post volume and latest question.</p>
+                    <p id="topicMapHint" class="mt-2 text-[11px] uppercase tracking-wider text-cyan-200/80">Tip: click a node to filter</p>
+                </div>
+
+                <div class="bb-topic-legend">
+                    @foreach ($categoryMapData as $item)
+                        <a
+                            href="{{ route('posts.index', ['category' => $item['slug']]) }}"
+                            class="bb-topic-pill"
+                            data-map-category-slug="{{ $item['slug'] }}"
+                        >
+                            {{ $item['name'] }} <span class="opacity-70">({{ $item['count'] }})</span>
+                        </a>
+                    @endforeach
+                </div>
+
+                <script type="application/json" id="topic-map-data">{!! json_encode($categoryMapData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+            @else
+                <div class="bb-topic-empty">
+                    <p class="text-sm font-semibold text-white">Topic map unlocks when categories have public posts.</p>
+                    <p class="mt-2 text-xs text-cyan-100/80">Publish your first post to power this visualization.</p>
+                </div>
+            @endif
         </div>
-    </section>
-
-    <section class="mb-10 grid gap-4 md:grid-cols-3">
-        <article class="bb-model-card" data-three-wrapper>
-            <div class="bb-model-visual">
-                <canvas class="bb-model-canvas" data-three-model="atom" aria-hidden="true"></canvas>
-            </div>
-            <h3 class="mt-4 text-lg font-bold text-slate-900">Microverse Lab</h3>
-            <p class="mt-2 text-sm text-slate-600">Orbiting atom scene for chemistry and physics explainers.</p>
-        </article>
-
-        <article class="bb-model-card" data-three-wrapper>
-            <div class="bb-model-visual">
-                <canvas class="bb-model-canvas" data-three-model="galaxy" aria-hidden="true"></canvas>
-            </div>
-            <h3 class="mt-4 text-lg font-bold text-slate-900">Galaxy Flow</h3>
-            <p class="mt-2 text-sm text-slate-600">Spinning stellar knot to frame deep-space style topics.</p>
-        </article>
-
-        <article class="bb-model-card" data-three-wrapper>
-            <div class="bb-model-visual">
-                <canvas class="bb-model-canvas" data-three-model="crystal" aria-hidden="true"></canvas>
-            </div>
-            <h3 class="mt-4 text-lg font-bold text-slate-900">Crystal Core</h3>
-            <p class="mt-2 text-sm text-slate-600">Neon faceted geometry for tech and innovation concepts.</p>
-        </article>
     </section>
 
     @php
@@ -100,7 +98,7 @@
                     name="search"
                     class="bb-input"
                     value="{{ $search }}"
-                    placeholder="Try: Why is the sky blue?"
+                    placeholder="Try: Why do cats purr?"
                 >
             </div>
 

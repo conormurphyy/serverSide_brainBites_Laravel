@@ -7,8 +7,10 @@ window.Alpine = Alpine;
 Alpine.start();
 
 document.addEventListener('DOMContentLoaded', () => {
-	initializeThreeScenes();
+	initializeTopicMap();
 	initializeTiltCards();
+	initializePostPreview();
+	initializeReadingTools();
 
 	const counterInputs = document.querySelectorAll('[data-counter-target]');
 
@@ -38,48 +40,30 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 });
 
-async function initializeThreeScenes() {
-	const canvases = [...document.querySelectorAll('[data-three-model]')];
+async function initializeTopicMap() {
+	const canvas = document.getElementById('topic-map-canvas');
+	const dataEl = document.getElementById('topic-map-data');
 
-	if (!canvases.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+	if (!canvas || !dataEl || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		return;
+	}
+
+	let mapData;
+
+	try {
+		mapData = JSON.parse(dataEl.textContent || '[]');
+	} catch {
+		mapData = [];
+	}
+
+	if (!Array.isArray(mapData) || !mapData.length) {
 		return;
 	}
 
 	const THREE = await import('three');
-	const scenes = canvases
-		.map((canvas) => createThreeScene(canvas, canvas.dataset.threeModel ?? 'hero', THREE))
-		.filter(Boolean);
-
-	if (!scenes.length) {
-		return;
-	}
-
-	const handleResize = () => {
-		scenes.forEach((sceneState) => resizeThreeScene(sceneState));
-	};
-
-	handleResize();
-	window.addEventListener('resize', handleResize);
-
-	const clock = new THREE.Clock();
-
-	const render = () => {
-		const elapsed = clock.getElapsedTime();
-
-		scenes.forEach((sceneState) => {
-			renderThreeScene(sceneState, elapsed);
-		});
-
-		window.requestAnimationFrame(render);
-	};
-
-	render();
-}
-
-function createThreeScene(canvas, type, THREE) {
 	const scene = new THREE.Scene();
-	const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-	camera.position.set(0, 0, 7);
+	const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+	camera.position.set(0, 0.2, 7.5);
 
 	const renderer = new THREE.WebGLRenderer({
 		canvas,
@@ -88,59 +72,177 @@ function createThreeScene(canvas, type, THREE) {
 	});
 	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-	const group = new THREE.Group();
-	scene.add(group);
+	const mapGroup = new THREE.Group();
+	scene.add(mapGroup);
 
-	const particles = createParticleCloud(THREE, type);
-	scene.add(particles);
+	scene.add(new THREE.AmbientLight(0xc2fcff, 0.75));
 
-	scene.add(new THREE.AmbientLight(0xb9f8ff, 0.75));
-
-	const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-	keyLight.position.set(4, 4, 7);
+	const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
+	keyLight.position.set(3, 4, 8);
 	scene.add(keyLight);
 
-	const rimLight = new THREE.PointLight(0xff9a5d, 1.1, 25);
-	rimLight.position.set(-4, -2, 3);
+	const rimLight = new THREE.PointLight(0xff9764, 1.1, 28);
+	rimLight.position.set(-4, -2, 4);
 	scene.add(rimLight);
 
-	const model = buildModel(type, group, THREE);
-	if (!model) {
-		return null;
-	}
+	const core = new THREE.Mesh(
+		new THREE.IcosahedronGeometry(0.9, 1),
+		new THREE.MeshStandardMaterial({
+			color: 0x4ef8ff,
+			emissive: 0x083f5f,
+			metalness: 0.4,
+			roughness: 0.2,
+			flatShading: true,
+		})
+	);
+	mapGroup.add(core);
 
-	const pointer = { x: 0, y: 0 };
-	const wrapper = canvas.closest('[data-three-wrapper]');
+	const shell = new THREE.Mesh(
+		new THREE.TorusGeometry(1.55, 0.04, 16, 120),
+		new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.38 })
+	);
+	shell.rotation.x = 1.2;
+	shell.rotation.y = 0.4;
+	mapGroup.add(shell);
 
-	if (wrapper) {
-		wrapper.addEventListener('pointermove', (event) => {
-			const rect = wrapper.getBoundingClientRect();
-			pointer.x = ((event.clientX - rect.left) / rect.width) - 0.5;
-			pointer.y = ((event.clientY - rect.top) / rect.height) - 0.5;
+	const particleCloud = createParticleCloud(THREE);
+	mapGroup.add(particleCloud);
+
+	const palette = [0x53e8ff, 0x9dff6a, 0xffa163, 0xffd35c, 0x8fc8ff, 0xc2ff7f, 0xfab0ff];
+	const nodes = mapData.map((item, index) => {
+		const radius = 0.24 + Math.min(0.45, item.count * 0.04);
+		const material = new THREE.MeshStandardMaterial({
+			color: palette[index % palette.length],
+			emissive: 0x10233f,
+			metalness: 0.35,
+			roughness: 0.25,
+		});
+		const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 20, 20), material);
+
+		sphere.userData = {
+			slug: item.slug,
+			name: item.name,
+			count: item.count,
+			latestTitle: item.latestTitle,
+		};
+
+		mapGroup.add(sphere);
+
+		const orbitRadius = 2 + (index * 0.43);
+		const speed = 0.23 + ((index % 4) * 0.05);
+		const angleOffset = (index / Math.max(mapData.length, 1)) * Math.PI * 2;
+
+		return {
+			sphere,
+			orbitRadius,
+			speed,
+			angleOffset,
+		};
+	});
+
+	const mapWrapper = canvas.closest('[data-topic-map-wrapper]');
+	const titleEl = document.getElementById('topicMapTitle');
+	const metaEl = document.getElementById('topicMapMeta');
+	const hintEl = document.getElementById('topicMapHint');
+	const legendItems = [...document.querySelectorAll('[data-map-category-slug]')];
+	const raycaster = new THREE.Raycaster();
+	const pointer = new THREE.Vector2();
+	let activeSlug = null;
+
+	const setActive = (slug) => {
+		activeSlug = slug;
+		legendItems.forEach((item) => {
+			item.classList.toggle('is-active', item.dataset.mapCategorySlug === slug);
 		});
 
-		wrapper.addEventListener('pointerleave', () => {
-			pointer.x = 0;
-			pointer.y = 0;
-		});
-	}
+		if (!slug) {
+			if (titleEl) titleEl.textContent = 'Hover a topic node';
+			if (metaEl) metaEl.textContent = 'See post volume and latest question.';
+			if (hintEl) hintEl.textContent = 'Tip: click a node to filter';
+			return;
+		}
 
-	return {
-		canvas,
-		renderer,
-		scene,
-		camera,
-		group,
-		particles,
-		model,
-		pointer,
-		type,
+		const active = mapData.find((item) => item.slug === slug);
+		if (!active) return;
+
+		if (titleEl) titleEl.textContent = active.name;
+		if (metaEl) metaEl.textContent = `${active.count} public posts`;
+		if (hintEl) hintEl.textContent = active.latestTitle ? `Latest: ${active.latestTitle}` : 'No latest post yet';
 	};
+
+	if (mapWrapper) {
+		mapWrapper.addEventListener('pointermove', (event) => {
+			const rect = canvas.getBoundingClientRect();
+			pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+			pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+		});
+
+		mapWrapper.addEventListener('pointerleave', () => {
+			setActive(null);
+			pointer.set(10, 10);
+		});
+
+		mapWrapper.addEventListener('click', () => {
+			if (!activeSlug) return;
+			const targetLink = legendItems.find((item) => item.dataset.mapCategorySlug === activeSlug);
+			if (targetLink) {
+				window.location.href = targetLink.href;
+			}
+		});
+	}
+
+	const resize = () => {
+		const width = canvas.clientWidth;
+		const height = canvas.clientHeight;
+		if (!width || !height) return;
+
+		renderer.setSize(width, height, false);
+		camera.aspect = width / height;
+		camera.updateProjectionMatrix();
+	};
+
+	resize();
+	window.addEventListener('resize', resize);
+
+	const clock = new THREE.Clock();
+
+	const animate = () => {
+		const elapsed = clock.getElapsedTime();
+		core.rotation.x = elapsed * 0.33;
+		core.rotation.y = elapsed * 0.45;
+		shell.rotation.z = elapsed * 0.18;
+		particleCloud.rotation.y = elapsed * 0.03;
+
+		nodes.forEach((node, index) => {
+			const angle = elapsed * node.speed + node.angleOffset;
+			node.sphere.position.x = Math.cos(angle) * node.orbitRadius;
+			node.sphere.position.z = Math.sin(angle) * node.orbitRadius;
+			node.sphere.position.y = Math.sin(elapsed * (node.speed + 0.18) + index) * 0.55;
+			node.sphere.rotation.y += 0.015;
+		});
+
+		raycaster.setFromCamera(pointer, camera);
+		const hits = raycaster.intersectObjects(nodes.map((node) => node.sphere));
+
+		if (hits.length > 0) {
+			const slug = hits[0].object.userData.slug;
+			if (slug !== activeSlug) {
+				setActive(slug);
+			}
+		} else if (activeSlug !== null) {
+			setActive(null);
+		}
+
+		renderer.render(scene, camera);
+		window.requestAnimationFrame(animate);
+	};
+
+	animate();
 }
 
-function createParticleCloud(THREE, type) {
-	const particleCount = type === 'hero' ? 900 : 420;
-	const spread = type === 'hero' ? 9 : 6;
+function createParticleCloud(THREE) {
+	const particleCount = 900;
+	const spread = 8;
 	const positions = new Float32Array(particleCount * 3);
 
 	for (let i = 0; i < particleCount; i += 1) {
@@ -160,160 +262,76 @@ function createParticleCloud(THREE, type) {
 		geometry,
 		new THREE.PointsMaterial({
 			color: 0xffffff,
-			size: type === 'hero' ? 0.03 : 0.025,
+			size: 0.03,
 			transparent: true,
-			opacity: type === 'hero' ? 0.75 : 0.6,
+			opacity: 0.7,
 		})
 	);
 }
 
-function buildModel(type, group, THREE) {
-	if (type === 'atom') {
-		const nucleus = new THREE.Mesh(
-			new THREE.SphereGeometry(1.05, 24, 24),
-			new THREE.MeshStandardMaterial({
-				color: 0x4af8ff,
-				emissive: 0x0a4465,
-				metalness: 0.35,
-				roughness: 0.25,
-			})
-		);
+function initializePostPreview() {
+	const titleInput = document.getElementById('title');
+	const summaryInput = document.getElementById('summary');
+	const categoryInput = document.getElementById('category_id');
+	const imageInput = document.getElementById('image');
 
-		const ringA = new THREE.Mesh(
-			new THREE.TorusGeometry(1.9, 0.06, 14, 120),
-			new THREE.MeshBasicMaterial({ color: 0xff8f54, transparent: true, opacity: 0.8 })
-		);
-		ringA.rotation.x = 1.2;
+	const previewTitle = document.getElementById('previewTitle');
+	const previewSummary = document.getElementById('previewSummary');
+	const previewCategory = document.getElementById('previewCategory');
+	const previewImage = document.getElementById('previewImage');
 
-		const ringB = ringA.clone();
-		ringB.rotation.x = 0.2;
-		ringB.rotation.y = 0.7;
-
-		const ringC = ringA.clone();
-		ringC.rotation.x = 0.8;
-		ringC.rotation.z = 1;
-
-		group.add(nucleus, ringA, ringB, ringC);
-
-		return { nucleus, ringA, ringB, ringC };
-	}
-
-	if (type === 'galaxy') {
-		const knot = new THREE.Mesh(
-			new THREE.TorusKnotGeometry(1.3, 0.38, 120, 16),
-			new THREE.MeshStandardMaterial({
-				color: 0x94ff5c,
-				emissive: 0x1d4f2a,
-				metalness: 0.4,
-				roughness: 0.23,
-			})
-		);
-
-		const shell = new THREE.Mesh(
-			new THREE.TorusGeometry(2.35, 0.05, 14, 130),
-			new THREE.MeshBasicMaterial({ color: 0x53e8ff, transparent: true, opacity: 0.5 })
-		);
-		shell.rotation.x = 0.7;
-		shell.rotation.y = 0.4;
-
-		group.add(knot, shell);
-
-		return { knot, shell };
-	}
-
-	if (type === 'crystal') {
-		const crystal = new THREE.Mesh(
-			new THREE.OctahedronGeometry(1.5, 1),
-			new THREE.MeshStandardMaterial({
-				color: 0x5bd9ff,
-				emissive: 0x0c3f61,
-				metalness: 0.25,
-				roughness: 0.22,
-				flatShading: true,
-			})
-		);
-
-		const frame = new THREE.Mesh(
-			new THREE.IcosahedronGeometry(2.2, 1),
-			new THREE.MeshBasicMaterial({ color: 0xff9f61, transparent: true, opacity: 0.35, wireframe: true })
-		);
-
-		group.add(crystal, frame);
-
-		return { crystal, frame };
-	}
-
-	const core = new THREE.Mesh(
-		new THREE.IcosahedronGeometry(1.35, 1),
-		new THREE.MeshStandardMaterial({
-			color: 0x33fff5,
-			emissive: 0x004a61,
-			metalness: 0.4,
-			roughness: 0.2,
-			flatShading: true,
-		})
-	);
-
-	const ring = new THREE.Mesh(
-		new THREE.TorusGeometry(2.1, 0.08, 16, 120),
-		new THREE.MeshBasicMaterial({ color: 0xff7f3f, transparent: true, opacity: 0.7 })
-	);
-	ring.rotation.x = 1.2;
-	ring.rotation.y = 0.5;
-
-	const ringTwo = new THREE.Mesh(
-		new THREE.TorusGeometry(2.8, 0.05, 16, 120),
-		new THREE.MeshBasicMaterial({ color: 0xa8ff72, transparent: true, opacity: 0.35 })
-	);
-	ringTwo.rotation.x = 0.4;
-	ringTwo.rotation.z = 0.5;
-
-	group.add(core, ring, ringTwo);
-
-	return { core, ring, ringTwo };
-}
-
-function resizeThreeScene(sceneState) {
-	const width = sceneState.canvas.clientWidth;
-	const height = sceneState.canvas.clientHeight;
-
-	if (!width || !height) {
+	if (!titleInput || !summaryInput || !previewTitle || !previewSummary) {
 		return;
 	}
 
-	sceneState.renderer.setSize(width, height, false);
-	sceneState.camera.aspect = width / height;
-	sceneState.camera.updateProjectionMatrix();
-}
+	const refresh = () => {
+		const title = titleInput.value.trim();
+		const summary = summaryInput.value.trim();
 
-function renderThreeScene(sceneState, elapsed) {
-	sceneState.particles.rotation.y = elapsed * (sceneState.type === 'hero' ? 0.035 : 0.02);
+		previewTitle.textContent = title || 'Your title appears here';
+		previewSummary.textContent = summary || 'Your summary appears here.';
 
-	if (sceneState.type === 'atom') {
-		sceneState.model.nucleus.rotation.x = elapsed * 0.35;
-		sceneState.model.nucleus.rotation.y = elapsed * 0.55;
-		sceneState.model.ringA.rotation.z = elapsed * 0.35;
-		sceneState.model.ringB.rotation.y = elapsed * -0.25;
-		sceneState.model.ringC.rotation.x = elapsed * 0.2;
-	} else if (sceneState.type === 'galaxy') {
-		sceneState.model.knot.rotation.x = elapsed * 0.3;
-		sceneState.model.knot.rotation.y = elapsed * 0.55;
-		sceneState.model.shell.rotation.z = elapsed * 0.22;
-	} else if (sceneState.type === 'crystal') {
-		sceneState.model.crystal.rotation.x = elapsed * 0.3;
-		sceneState.model.crystal.rotation.y = elapsed * 0.4;
-		sceneState.model.frame.rotation.y = elapsed * -0.2;
-	} else {
-		sceneState.model.core.rotation.x = elapsed * 0.25;
-		sceneState.model.core.rotation.y = elapsed * 0.45;
-		sceneState.model.ring.rotation.z = elapsed * 0.22;
-		sceneState.model.ringTwo.rotation.y = elapsed * -0.16;
+		if (previewCategory && categoryInput) {
+			const label = categoryInput.options[categoryInput.selectedIndex]?.text || 'Category';
+			previewCategory.textContent = label;
+		}
+	};
+
+	titleInput.addEventListener('input', refresh);
+	summaryInput.addEventListener('input', refresh);
+	if (categoryInput) {
+		categoryInput.addEventListener('change', refresh);
 	}
 
-	sceneState.group.rotation.y += (sceneState.pointer.x * 0.7 - sceneState.group.rotation.y) * 0.04;
-	sceneState.group.rotation.x += (-sceneState.pointer.y * 0.6 - sceneState.group.rotation.x) * 0.04;
+	if (imageInput && previewImage) {
+		imageInput.addEventListener('change', () => {
+			const file = imageInput.files?.[0];
+			if (!file) return;
 
-	sceneState.renderer.render(sceneState.scene, sceneState.camera);
+			previewImage.src = URL.createObjectURL(file);
+		});
+	}
+
+	refresh();
+}
+
+function initializeReadingTools() {
+	const content = document.getElementById('postContent');
+	if (!content) return;
+
+	const buttons = [...document.querySelectorAll('[data-font-size]')];
+	buttons.forEach((button) => {
+		button.addEventListener('click', () => {
+			const size = button.dataset.fontSize;
+			content.classList.remove('bb-reading-small', 'bb-reading-large');
+
+			if (size === 'small') {
+				content.classList.add('bb-reading-small');
+			} else if (size === 'large') {
+				content.classList.add('bb-reading-large');
+			}
+		});
+	});
 }
 
 function initializeTiltCards() {

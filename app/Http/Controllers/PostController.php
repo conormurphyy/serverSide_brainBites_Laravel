@@ -71,11 +71,29 @@ class PostController extends Controller
             ->get();
 
         $categories = Category::query()->orderBy('name')->get();
+        $categoryMapData = $categories
+            ->map(function (Category $category): array {
+                $publicCount = $category->posts()->public()->count();
+                $latestTitle = $category->posts()
+                    ->public()
+                    ->latest('published_at')
+                    ->value('title');
+
+                return [
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'count' => $publicCount,
+                    'latestTitle' => $latestTitle,
+                ];
+            })
+            ->filter(fn (array $item): bool => $item['count'] > 0)
+            ->values();
 
         return view('posts.index', [
             'posts' => $posts,
             'featuredPosts' => $featuredPosts,
             'categories' => $categories,
+            'categoryMapData' => $categoryMapData,
             'search' => $search,
             'selectedCategory' => $category,
             'sort' => $sort,

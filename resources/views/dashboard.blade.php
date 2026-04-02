@@ -3,7 +3,7 @@
 @section('title', 'BrainBites | Dashboard')
 
 @section('content')
-    <section class="bb-cosmic-banner mb-8" data-three-wrapper>
+    <section class="bb-cosmic-banner mb-8">
         <div>
             <p class="bb-chip">Creator Command Center</p>
             <h1 class="bb-title-font mt-3 text-4xl text-white sm:text-5xl">Contributor Dashboard</h1>
@@ -13,8 +13,24 @@
             </div>
         </div>
 
-        <div class="bb-model-visual min-h-[220px]">
-            <canvas class="bb-model-canvas" data-three-model="galaxy" aria-hidden="true"></canvas>
+        <div class="bb-focus-card">
+            <h2 class="text-lg font-bold text-white">Publishing Rhythm</h2>
+            <p class="mt-2 text-sm text-cyan-100/85">Use these metrics to decide your next post and keep momentum.</p>
+
+            <div class="mt-4 space-y-3 text-sm text-cyan-100">
+                <div>
+                    <p class="mb-1">Public Share</p>
+                    <div class="h-2 rounded-full bg-white/20">
+                        <div class="h-2 rounded-full bg-cyan-300" style="width: {{ $stats['total_posts'] > 0 ? round(($stats['public_posts'] / $stats['total_posts']) * 100) : 0 }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <p class="mb-1">Avg Likes / Post</p>
+                    <div class="h-2 rounded-full bg-white/20">
+                        <div class="h-2 rounded-full bg-lime-300" style="width: {{ min(100, $stats['total_posts'] > 0 ? round(($stats['total_likes'] / max(1, $stats['total_posts'])) * 20) : 0) }}%"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
