@@ -33,7 +33,7 @@
             <div class="bb-model-card" data-tilt-card>
                 <div data-tilt-glare class="bb-post-glare"></div>
                 <img
-                    src="{{ str_starts_with($post->image_path, 'http') ? $post->image_path : Storage::url($post->image_path) }}"
+                    src="{{ $post->image_source }}"
                     alt="{{ $post->title }}"
                     class="h-44 w-full rounded-xl object-cover"
                 >
@@ -45,7 +45,7 @@
                 <h3 class="text-lg font-bold text-slate-900">Live Card Preview</h3>
                 <p class="mt-2 text-sm text-slate-600">Preview updates while you edit this post.</p>
                 <div class="mt-4 rounded-xl border border-slate-200 bg-white p-3">
-                    <img id="previewImage" src="{{ str_starts_with($post->image_path, 'http') ? $post->image_path : Storage::url($post->image_path) }}" alt="Preview" class="h-36 w-full rounded-lg object-cover">
+                    <img id="previewImage" src="{{ $post->image_source }}" alt="Preview" class="h-36 w-full rounded-lg object-cover">
                     <p id="previewCategory" class="mt-3 text-xs font-semibold uppercase tracking-wide text-cyan-700">{{ $post->category->name }}</p>
                     <p id="previewTitle" class="mt-1 text-sm font-semibold text-slate-900">{{ $post->title }}</p>
                     <p id="previewSummary" class="mt-1 text-xs text-slate-600">{{ $post->summary }}</p>

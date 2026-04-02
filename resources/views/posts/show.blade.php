@@ -29,7 +29,7 @@
             </div>
 
             <img
-                src="{{ str_starts_with($post->image_path, 'http') ? $post->image_path : Storage::url($post->image_path) }}"
+                src="{{ $post->image_source }}"
                 alt="{{ $post->title }}"
                 class="mt-6 h-72 w-full rounded-2xl object-cover sm:h-96"
             >
@@ -79,7 +79,7 @@
                         @foreach ($relatedPosts as $related)
                             <a href="{{ route('posts.show', $related) }}" class="block rounded-lg border border-slate-200 p-3 transition hover:bg-slate-50">
                                 <img
-                                    src="{{ str_starts_with($related->image_path, 'http') ? $related->image_path : Storage::url($related->image_path) }}"
+                                    src="{{ $related->image_source }}"
                                     alt="{{ $related->title }}"
                                     class="mb-2 h-28 w-full rounded-lg object-cover"
                                 >

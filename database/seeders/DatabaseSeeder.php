@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $pixelPngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/a6sAAAAASUVORK5CYII=';
+
         $contributor = User::factory()->create([
             'name' => 'Lead Chemist',
             'email' => 'chemist@brainbites.test',
@@ -49,7 +51,9 @@ class DatabaseSeeder extends Seeder
             'slug' => 'how-was-the-first-programming-language-created',
             'summary' => 'Before modern tools existed, pioneers designed symbolic systems by hand and translated them to machine instructions.',
             'body' => 'The first programming languages were built by mathematically defining symbolic instructions that could be converted into machine code. Early programmers wrote translators called assemblers and compilers, often directly in machine language. Over time, each generation of tools made the next generation easier to build, leading to the ecosystems we use today.',
-            'image_path' => 'https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=1200&q=80',
+            'image_path' => 'embedded',
+            'image_mime' => 'image/png',
+            'image_base64' => $pixelPngBase64,
             'is_public' => true,
             'published_at' => now()->subDays(3),
         ]);
@@ -61,7 +65,9 @@ class DatabaseSeeder extends Seeder
             'slug' => 'why-is-the-sky-blue-during-the-day',
             'summary' => 'Air molecules scatter blue wavelengths of sunlight more than red wavelengths, making blue light dominant in our view.',
             'body' => 'Sunlight contains many colors. As sunlight passes through Earth\'s atmosphere, gas molecules scatter shorter wavelengths of light more efficiently. Blue and violet wavelengths scatter most, but our eyes are more sensitive to blue and some violet gets absorbed in the upper atmosphere. The result is a sky that appears blue in daylight.',
-            'image_path' => 'https://images.unsplash.com/photo-1472145246862-b24cf25c4a36?auto=format&fit=crop&w=1200&q=80',
+            'image_path' => 'embedded',
+            'image_mime' => 'image/png',
+            'image_base64' => $pixelPngBase64,
             'is_public' => true,
             'published_at' => now()->subDays(2),
         ]);
@@ -73,7 +79,9 @@ class DatabaseSeeder extends Seeder
             'slug' => 'how-do-plants-know-which-way-to-grow',
             'summary' => 'Plants respond to light and gravity through chemical signals that control cell expansion direction.',
             'body' => 'Plants use tropisms to orient their growth. In phototropism, plant hormones like auxin accumulate on the darker side of a stem and cause those cells to elongate more, bending the plant toward light. In gravitropism, roots and shoots detect gravity and distribute growth hormones differently, helping roots grow downward and shoots upward.',
-            'image_path' => 'https://images.unsplash.com/photo-1463320726281-696a485928c7?auto=format&fit=crop&w=1200&q=80',
+            'image_path' => 'embedded',
+            'image_mime' => 'image/png',
+            'image_base64' => $pixelPngBase64,
             'is_public' => true,
             'published_at' => now()->subDay(),
         ]);

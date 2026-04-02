@@ -8,7 +8,6 @@ use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -125,7 +124,10 @@ class PostController extends Controller
         $data['published_at'] = $data['is_public'] ? now() : null;
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('posts', 'public');
+            $image = $request->file('image');
+            $data['image_mime'] = $image->getMimeType() ?: 'image/jpeg';
+            $data['image_base64'] = base64_encode((string) file_get_contents($image->getRealPath()));
+            $data['image_path'] = 'embedded';
         }
 
         unset($data['image']);
@@ -187,11 +189,10 @@ class PostController extends Controller
         $data['slug'] = Post::uniqueSlug($data['title'], $post->id);
 
         if ($request->hasFile('image')) {
-            if (! str_starts_with($post->image_path, 'http')) {
-                Storage::disk('public')->delete($post->image_path);
-            }
-
-            $data['image_path'] = $request->file('image')->store('posts', 'public');
+            $image = $request->file('image');
+            $data['image_mime'] = $image->getMimeType() ?: 'image/jpeg';
+            $data['image_base64'] = base64_encode((string) file_get_contents($image->getRealPath()));
+            $data['image_path'] = 'embedded';
         }
 
         unset($data['image']);
@@ -217,10 +218,6 @@ class PostController extends Controller
     public function destroy(Post $post): RedirectResponse
     {
         $this->authorize('delete', $post);
-
-        if ($post->image_path && ! str_starts_with($post->image_path, 'http')) {
-            Storage::disk('public')->delete($post->image_path);
-        }
 
         $post->delete();
 

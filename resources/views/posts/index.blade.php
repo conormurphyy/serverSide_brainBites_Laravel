@@ -74,7 +74,7 @@
                     <a href="{{ route('posts.show', $imagePost) }}" class="bb-mosaic-tile" data-tilt-card>
                         <div data-tilt-glare class="bb-post-glare"></div>
                         <img
-                            src="{{ str_starts_with($imagePost->image_path, 'http') ? $imagePost->image_path : Storage::url($imagePost->image_path) }}"
+                            src="{{ $imagePost->image_source }}"
                             alt="{{ $imagePost->title }}"
                             class="h-52 w-full rounded-xl object-cover"
                         >
@@ -136,7 +136,7 @@
                     <article class="bb-feature-card" data-tilt-card>
                         <div data-tilt-glare class="bb-post-glare"></div>
                         <img
-                            src="{{ str_starts_with($featured->image_path, 'http') ? $featured->image_path : Storage::url($featured->image_path) }}"
+                            src="{{ $featured->image_source }}"
                             alt="{{ $featured->title }}"
                             class="mb-4 h-40 w-full rounded-xl object-cover"
                         >
@@ -174,7 +174,7 @@
                     <div data-tilt-glare class="bb-post-glare"></div>
 
                     <img
-                        src="{{ str_starts_with($post->image_path, 'http') ? $post->image_path : Storage::url($post->image_path) }}"
+                        src="{{ $post->image_source }}"
                         alt="{{ $post->title }}"
                         class="h-44 w-full rounded-xl object-cover"
                     >

@@ -21,6 +21,8 @@ class Post extends Model
         'summary',
         'body',
         'image_path',
+        'image_mime',
+        'image_base64',
         'is_public',
         'published_at',
     ];
@@ -56,6 +58,24 @@ class Post extends Model
     public function scopePublic(Builder $query): Builder
     {
         return $query->where('is_public', true);
+    }
+
+    public function getImageSourceAttribute(): string
+    {
+        if ($this->image_base64 && $this->image_mime) {
+            return 'data:'.$this->image_mime.';base64,'.$this->image_base64;
+        }
+
+        if ($this->image_path && str_starts_with($this->image_path, 'http')) {
+            return $this->image_path;
+        }
+
+        if ($this->image_path) {
+            return asset('storage/'.$this->image_path);
+        }
+
+        // Visible fallback prevents blank cards when legacy rows have no image data.
+        return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='630'><rect width='100%' height='100%' fill='%231f2937'/><text x='60' y='320' fill='white' font-size='56' font-family='Arial'>No Image Available</text></svg>";
     }
 
     public function isLikedBy(?User $user): bool

@@ -76,7 +76,7 @@
                         <tr class="border-b border-slate-100">
                             <td class="px-3 py-3">
                                 <img
-                                    src="{{ str_starts_with($post->image_path, 'http') ? $post->image_path : Storage::url($post->image_path) }}"
+                                    src="{{ $post->image_source }}"
                                     alt="{{ $post->title }}"
                                     class="h-16 w-24 rounded-lg object-cover"
                                 >
