@@ -22,9 +22,16 @@
                 </a>
 
                 <nav class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <button type="button" id="themeToggle" class="bb-button-secondary">Dark mode</button>
                     <a href="{{ route('posts.index') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Explore</a>
+                    <a href="{{ route('brainbot.page') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">brainBot</a>
+                    <a href="{{ route('about') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">About</a>
+                    <a href="{{ route('contact') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Contact</a>
 
                     @auth
+                        @if (auth()->user()->isAdmin())
+                            <a href="{{ route('admin.contact-messages.index') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Inbox</a>
+                        @endif
                         <a href="{{ route('dashboard') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Dashboard</a>
                         <a href="{{ route('posts.create') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Add Post</a>
                         <a href="{{ route('profile.edit') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Profile</a>
@@ -50,28 +57,5 @@
 
             @yield('content')
         </main>
-
-        <button type="button" class="bb-brainbot-toggle" id="brainbotToggle" aria-controls="brainbotPanel" aria-expanded="false">
-            brainBot
-        </button>
-
-        <section class="bb-brainbot" id="brainbotPanel" aria-live="polite" hidden>
-            <header class="bb-brainbot-header">
-                <h2>brainBot</h2>
-                <p>Web-aware learning assistant</p>
-            </header>
-
-            <div class="bb-brainbot-messages" id="brainbotMessages">
-                <article class="bb-brainbot-message bot">
-                    Ask me anything. I can search the web and summarize answers.
-                </article>
-            </div>
-
-            <form class="bb-brainbot-form" id="brainbotForm">
-                <label for="brainbotInput" class="sr-only">Ask brainBot</label>
-                <input id="brainbotInput" type="text" maxlength="500" placeholder="Ask a question..." required>
-                <button type="submit">Send</button>
-            </form>
-        </section>
     </body>
 </html>

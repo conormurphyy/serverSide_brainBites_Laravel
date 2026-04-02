@@ -7,7 +7,9 @@ window.Alpine = Alpine;
 Alpine.start();
 
 document.addEventListener('DOMContentLoaded', () => {
+	initializeThemeToggle();
 	initializeTopicMap();
+	initializeHeroWaveCanvases();
 	initializeTiltCards();
 	initializePostPreview();
 	initializeReadingTools();
@@ -247,9 +249,10 @@ function initializeBrainBot() {
 	const form = document.getElementById('brainbotForm');
 	const input = document.getElementById('brainbotInput');
 	const messages = document.getElementById('brainbotMessages');
+	const quickPrompts = document.querySelectorAll('[data-brainbot-prompt]');
 	const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-	if (!panel || !toggle || !form || !input || !messages || !csrfToken) {
+	if (!panel || !form || !input || !messages || !csrfToken) {
 		return;
 	}
 
@@ -261,17 +264,67 @@ function initializeBrainBot() {
 		messages.scrollTop = messages.scrollHeight;
 	};
 
-	const setOpen = (open) => {
-		panel.hidden = !open;
-		toggle.setAttribute('aria-expanded', String(open));
-		if (open) {
-			input.focus();
+	const addHistoryPair = (question, answer) => {
+		if (question) {
+			addMessage(question, 'user');
+		}
+		if (answer) {
+			addMessage(answer, 'bot');
 		}
 	};
 
-	toggle.addEventListener('click', () => {
-		setOpen(panel.hidden);
+	if (toggle) {
+		const setOpen = (open) => {
+			panel.hidden = !open;
+			toggle.setAttribute('aria-expanded', String(open));
+			if (open) {
+				input.focus();
+			}
+		};
+
+		toggle.addEventListener('click', () => {
+			setOpen(panel.hidden);
+		});
+	}
+
+	quickPrompts.forEach((button) => {
+		button.addEventListener('click', () => {
+			const prompt = button.getAttribute('data-brainbot-prompt') || '';
+			if (!prompt) {
+				return;
+			}
+
+			input.value = prompt;
+			input.focus();
+		});
 	});
+
+	fetch('/brainbot/history', {
+		method: 'GET',
+		headers: {
+			'Accept': 'application/json',
+		},
+	})
+		.then(async (response) => {
+			if (!response.ok) {
+				return;
+			}
+
+			const payload = await response.json();
+			const history = Array.isArray(payload.history) ? payload.history : [];
+
+			if (!history.length) {
+				return;
+			}
+
+			messages.innerHTML = '';
+			history.forEach((item) => {
+				addHistoryPair(item.question || '', item.answer || '');
+			});
+		})
+		.catch(() => {
+			// Ignore history loading failures silently.
+		});
 
 	form.addEventListener('submit', async (event) => {
 		event.preventDefault();
@@ -325,6 +378,38 @@ function initializeBrainBot() {
 			input.disabled = false;
 			input.focus();
 		}
+	});
+}
+
+function initializeThemeToggle() {
+	const root = document.body;
+	const toggle = document.getElementById('themeToggle');
+	const key = 'bb-theme';
+
+	const applyTheme = (theme) => {
+		const dark = theme === 'dark';
+		root.classList.toggle('theme-dark', dark);
+		if (toggle) {
+			toggle.textContent = dark ? 'Light mode' : 'Dark mode';
+		}
+	};
+
+	const saved = localStorage.getItem(key);
+	if (saved === 'dark' || saved === 'light') {
+		applyTheme(saved);
+	} else {
+		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		applyTheme(prefersDark ? 'dark' : 'light');
+	}
+
+	if (!toggle) {
+		return;
+	}
+
+	toggle.addEventListener('click', () => {
+		const next = root.classList.contains('theme-dark') ? 'light' : 'dark';
+		localStorage.setItem(key, next);
+		applyTheme(next);
 	});
 }
 
@@ -419,6 +504,68 @@ function initializeReadingTools() {
 				content.classList.add('bb-reading-large');
 			}
 		});
+	});
+}
+
+function initializeHeroWaveCanvases() {
+	const canvases = document.querySelectorAll('[data-hero-wave]');
+
+	if (!canvases.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		return;
+	}
+
+	canvases.forEach((canvas) => {
+		const ctx = canvas.getContext('2d');
+		if (!ctx) {
+			return;
+		}
+
+		const resize = () => {
+			const width = canvas.clientWidth;
+			const height = canvas.clientHeight;
+			canvas.width = Math.max(1, Math.floor(width * window.devicePixelRatio));
+			canvas.height = Math.max(1, Math.floor(height * window.devicePixelRatio));
+			ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+		};
+
+		resize();
+		window.addEventListener('resize', resize);
+
+		let frame = 0;
+
+		const draw = () => {
+			const width = canvas.clientWidth;
+			const height = canvas.clientHeight;
+			ctx.clearRect(0, 0, width, height);
+
+			for (let layer = 0; layer < 3; layer += 1) {
+				ctx.beginPath();
+				const amplitude = 8 + (layer * 4);
+				const speed = 0.01 + (layer * 0.0035);
+				const offset = layer * 1.7;
+
+				for (let x = 0; x <= width; x += 4) {
+					const y = (height * 0.5)
+						+ Math.sin((x * 0.03) + (frame * speed) + offset) * amplitude
+						+ Math.cos((x * 0.01) + (frame * speed * 1.7)) * (amplitude * 0.35);
+
+					if (x === 0) {
+						ctx.moveTo(x, y);
+					} else {
+						ctx.lineTo(x, y);
+					}
+				}
+
+				ctx.strokeStyle = `rgba(${layer === 0 ? '34,211,238' : layer === 1 ? '163,230,53' : '255,255,255'}, ${0.3 - (layer * 0.07)})`;
+				ctx.lineWidth = 1.3;
+				ctx.stroke();
+			}
+
+			frame += 1;
+			window.requestAnimationFrame(draw);
+		};
+
+		draw();
 	});
 }
 

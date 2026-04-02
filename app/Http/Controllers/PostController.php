@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Category;
+use App\Models\Like;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -88,11 +90,39 @@ class PostController extends Controller
             ->filter(fn (array $item): bool => $item['count'] > 0)
             ->values();
 
+        $communityStats = [
+            'public_posts' => Post::query()->public()->count(),
+            'public_likes' => Like::query()->whereHas('post', fn ($query) => $query->public())->count(),
+            'active_categories' => $categoryMapData->count(),
+            'contributors' => User::query()->whereHas('posts', fn ($query) => $query->public())->count(),
+        ];
+
+        $topContributors = User::query()
+            ->withCount([
+                'posts as public_posts_count' => fn ($query) => $query->public(),
+                'likes',
+            ])
+            ->orderByDesc('public_posts_count')
+            ->orderByDesc('likes_count')
+            ->take(5)
+            ->get();
+
+        $freshPicks = Post::query()
+            ->public()
+            ->with(['user', 'category'])
+            ->withCount('likes')
+            ->latest('published_at')
+            ->take(4)
+            ->get();
+
         return view('posts.index', [
             'posts' => $posts,
             'featuredPosts' => $featuredPosts,
             'categories' => $categories,
             'categoryMapData' => $categoryMapData,
+            'communityStats' => $communityStats,
+            'topContributors' => $topContributors,
+            'freshPicks' => $freshPicks,
             'search' => $search,
             'selectedCategory' => $category,
             'sort' => $sort,

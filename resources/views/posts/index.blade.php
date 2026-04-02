@@ -154,6 +154,75 @@
         </section>
     @endif
 
+    <section class="mb-10 grid gap-5 lg:grid-cols-4">
+        <article class="bb-model-card">
+            <p class="text-xs uppercase tracking-[0.15em] text-cyan-700">Public Posts</p>
+            <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($communityStats['public_posts']) }}</p>
+            <p class="mt-2 text-sm text-slate-600">Curiosity capsules available to explore.</p>
+        </article>
+        <article class="bb-model-card">
+            <p class="text-xs uppercase tracking-[0.15em] text-cyan-700">Total Likes</p>
+            <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($communityStats['public_likes']) }}</p>
+            <p class="mt-2 text-sm text-slate-600">Signals of what helped people most.</p>
+        </article>
+        <article class="bb-model-card">
+            <p class="text-xs uppercase tracking-[0.15em] text-cyan-700">Active Categories</p>
+            <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($communityStats['active_categories']) }}</p>
+            <p class="mt-2 text-sm text-slate-600">Topic clusters with live momentum.</p>
+        </article>
+        <article class="bb-model-card">
+            <p class="text-xs uppercase tracking-[0.15em] text-cyan-700">Contributors</p>
+            <p class="mt-2 text-3xl font-bold text-slate-900">{{ number_format($communityStats['contributors']) }}</p>
+            <p class="mt-2 text-sm text-slate-600">People sharing ideas and answers.</p>
+        </article>
+    </section>
+
+    <section class="mb-10 grid gap-5 lg:grid-cols-2">
+        <article class="bb-card">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-slate-900">Top Contributors</h2>
+                <span class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Community Leaders</span>
+            </div>
+
+            @if ($topContributors->isEmpty())
+                <p class="mt-4 text-sm text-slate-600">No contributor data yet.</p>
+            @else
+                <div class="mt-4 space-y-3">
+                    @foreach ($topContributors as $contributor)
+                        <div class="flex items-center justify-between rounded-xl border border-slate-200/80 bg-white p-3">
+                            <div>
+                                <p class="font-semibold text-slate-900">{{ $contributor->name }}</p>
+                                <p class="text-xs text-slate-500">{{ $contributor->public_posts_count }} public posts</p>
+                            </div>
+                            <span class="bb-chip">{{ $contributor->likes_count }} likes</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </article>
+
+        <article class="bb-card">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-slate-900">Fresh Picks</h2>
+                <a href="#latest" class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Jump to Feed</a>
+            </div>
+
+            @if ($freshPicks->isEmpty())
+                <p class="mt-4 text-sm text-slate-600">No fresh picks yet.</p>
+            @else
+                <div class="mt-4 space-y-3">
+                    @foreach ($freshPicks as $pick)
+                        <a href="{{ route('posts.show', $pick) }}" class="block rounded-xl border border-slate-200/80 bg-white p-3 transition hover:border-cyan-300">
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">{{ $pick->category->name }}</p>
+                            <p class="mt-1 font-semibold text-slate-900">{{ $pick->title }}</p>
+                            <p class="mt-1 text-sm text-slate-600">{{ $pick->summary }}</p>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+        </article>
+    </section>
+
     <section id="latest">
         <div class="mb-4 flex items-center justify-between">
             <h2 class="text-xl font-bold text-slate-900">Latest Question Capsules</h2>

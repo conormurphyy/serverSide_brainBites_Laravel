@@ -41,6 +41,16 @@ class User extends Authenticatable
         return $this->hasMany(Like::class);
     }
 
+    public function contactMessagesResolved(): HasMany
+    {
+        return $this->hasMany(ContactMessage::class, 'resolved_by');
+    }
+
+    public function brainBotMessages(): HasMany
+    {
+        return $this->hasMany(BrainBotMessage::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
