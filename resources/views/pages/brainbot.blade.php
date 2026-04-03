@@ -6,7 +6,7 @@
     <section class="bb-cosmic-banner mb-8">
         <div>
             <p class="bb-kicker">AI Lab</p>
-            <h1 class="bb-title-font text-4xl text-white sm:text-5xl">brainBot Command Deck</h1>
+            <h1 class="bb-title-font text-4xl text-white sm:text-5xl">Brain Bot Command Deck</h1>
             <p class="mt-4 max-w-xl text-sm text-cyan-100/90 sm:text-base">
                 Ask questions, summarize tricky concepts, and explore ideas with a web-aware assistant.
                 This is your dedicated chat space for focused learning sessions.
@@ -35,19 +35,19 @@
 
     <section class="bb-brainbot bb-brainbot-standalone" id="brainbotPanel" aria-live="polite">
         <header class="bb-brainbot-header">
-            <h2>brainBot</h2>
+            <h2>Brain Bot</h2>
             <p>Dedicated learning chat</p>
         </header>
 
         <div class="bb-brainbot-messages" id="brainbotMessages">
             <article class="bb-brainbot-message bot">
-Welcome to brainBot. Ask a question to begin your session.
+Welcome to Brain Bot. Ask a question to begin your session.
             </article>
         </div>
 
         <form class="bb-brainbot-form" id="brainbotForm">
-            <label for="brainbotInput" class="sr-only">Ask brainBot</label>
-            <input id="brainbotInput" type="text" maxlength="500" placeholder="Ask brainBot anything..." required>
+            <label for="brainbotInput" class="sr-only">Ask Brain Bot</label>
+            <input id="brainbotInput" type="text" maxlength="500" placeholder="Ask Brain Bot anything..." required>
             <button type="submit">Send</button>
         </form>
     </section>
