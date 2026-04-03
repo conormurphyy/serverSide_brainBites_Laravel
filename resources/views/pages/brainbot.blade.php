@@ -41,7 +41,7 @@
 
         <div class="bb-brainbot-messages" id="brainbotMessages">
             <article class="bb-brainbot-message bot">
-                Welcome to brainBot. Ask a question to begin your session.
+Welcome to brainBot. Ask a question to begin your session.
             </article>
         </div>
 
