@@ -273,6 +273,13 @@
                                     {{ $post->isLikedBy(auth()->user()) ? 'Unlike' : 'Like' }}
                                 </button>
                             </form>
+
+                            <form action="{{ route('posts.bookmark', $post) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="bb-button-secondary">
+                                    {{ $post->isBookmarkedBy(auth()->user()) ? 'Unsave' : 'Save' }}
+                                </button>
+                            </form>
                         @endauth
                     </div>
                 </article>

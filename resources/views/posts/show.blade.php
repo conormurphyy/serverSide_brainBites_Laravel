@@ -48,6 +48,13 @@
                             {{ $post->isLikedBy(auth()->user()) ? 'Unlike' : 'Like this answer' }}
                         </button>
                     </form>
+
+                    <form action="{{ route('posts.bookmark', $post) }}" method="POST">
+                        @csrf
+                        <button class="bb-button-secondary" type="submit">
+                            {{ $post->isBookmarkedBy(auth()->user()) ? 'Remove bookmark' : 'Save bookmark' }}
+                        </button>
+                    </form>
                 @else
                     <a href="{{ route('login') }}" class="bb-button-secondary">Log in to like</a>
                 @endauth
@@ -76,6 +83,9 @@
             <div class="bb-card">
                 <h2 class="text-lg font-bold text-slate-900">Post details</h2>
                 <p class="mt-2 text-sm text-slate-600">Published: {{ optional($post->published_at)->format('M d, Y') ?? 'Draft' }}</p>
+                @if ($post->published_at && $post->published_at->isFuture())
+                    <p class="mt-1 text-sm text-amber-700">Scheduled: {{ $post->published_at->format('M d, Y h:i A') }}</p>
+                @endif
                 <p class="mt-1 text-sm text-slate-600">Visibility: {{ $post->is_public ? 'Public' : 'Private draft' }}</p>
                 <p class="mt-1 text-sm text-slate-600">Category: {{ $post->category->name }}</p>
             </div>

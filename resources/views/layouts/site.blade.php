@@ -32,6 +32,7 @@
                         @if (auth()->user()->isAdmin())
                             <a href="{{ route('admin.contact-messages.index') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Inbox</a>
                         @endif
+                        <a href="{{ route('bookmarks.index') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Bookmarks</a>
                         <a href="{{ route('dashboard') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Dashboard</a>
                         <a href="{{ route('posts.create') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Add Post</a>
                         <a href="{{ route('profile.edit') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Profile</a>

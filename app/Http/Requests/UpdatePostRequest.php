@@ -34,6 +34,7 @@ class UpdatePostRequest extends FormRequest
             'body' => ['required', 'string', 'min:80'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'is_public' => ['nullable', 'boolean'],
+            'published_at' => ['nullable', 'date'],
         ];
     }
 
@@ -60,6 +61,7 @@ class UpdatePostRequest extends FormRequest
     {
         $this->merge([
             'is_public' => $this->boolean('is_public'),
+            'published_at' => $this->filled('published_at') ? $this->input('published_at') : null,
         ]);
     }
 }

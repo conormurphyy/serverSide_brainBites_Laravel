@@ -91,6 +91,19 @@
         Make this post public
     </label>
 
+    <div>
+        <label for="published_at" class="bb-label">Publish At (optional)</label>
+        <input
+            type="datetime-local"
+            id="published_at"
+            name="published_at"
+            class="bb-input"
+            value="{{ old('published_at', isset($post) && $post->published_at ? $post->published_at->format('Y-m-d\\TH:i') : '') }}"
+        >
+        <p class="mt-1 text-xs text-slate-500">Leave empty to publish immediately when public is enabled.</p>
+        @error('published_at')<p class="bb-error">{{ $message }}</p>@enderror
+    </div>
+
     <div class="flex flex-wrap gap-3">
         <button type="submit" class="bb-button">{{ $editing ? 'Save Changes' : 'Publish Post' }}</button>
         <a href="{{ $editing ? route('posts.show', $post) : route('dashboard') }}" class="bb-button-secondary">Cancel</a>

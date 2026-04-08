@@ -55,9 +55,18 @@ class Post extends Model
         return $this->hasMany(Like::class);
     }
 
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
     public function scopePublic(Builder $query): Builder
     {
-        return $query->where('is_public', true);
+        return $query->where('is_public', true)
+            ->where(function (Builder $nested): void {
+                $nested->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            });
     }
 
     public function getImageSourceAttribute(): string
@@ -85,6 +94,15 @@ class Post extends Model
         }
 
         return $this->likes->contains('user_id', $user->id);
+    }
+
+    public function isBookmarkedBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return $this->bookmarks->contains('user_id', $user->id);
     }
 
     public static function uniqueSlug(string $title, ?int $ignoreId = null): string

@@ -24,7 +24,7 @@ class PostController extends Controller
         $sort = trim((string) $request->string('sort', 'newest'));
 
         $postsQuery = Post::query()
-            ->with(['user', 'category', 'likes'])
+            ->with(['user', 'category', 'likes', 'bookmarks'])
             ->withCount('likes')
             ->when(auth()->check(), function ($query): void {
                 $query->where(function ($nested): void {
@@ -64,7 +64,7 @@ class PostController extends Controller
 
         $featuredPosts = Post::query()
             ->public()
-            ->with(['user', 'category', 'likes'])
+            ->with(['user', 'category', 'likes', 'bookmarks'])
             ->withCount('likes')
             ->orderByDesc('likes_count')
             ->orderByDesc('published_at')
@@ -109,7 +109,7 @@ class PostController extends Controller
 
         $freshPicks = Post::query()
             ->public()
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'bookmarks'])
             ->withCount('likes')
             ->latest('published_at')
             ->take(4)
@@ -151,7 +151,13 @@ class PostController extends Controller
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
         $data['slug'] = Post::uniqueSlug($data['title']);
-        $data['published_at'] = $data['is_public'] ? now() : null;
+        if (! ($data['is_public'] ?? false)) {
+            $data['published_at'] = null;
+        } elseif (! empty($data['published_at'])) {
+            $data['published_at'] = $data['published_at'];
+        } else {
+            $data['published_at'] = now();
+        }
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -174,14 +180,18 @@ class PostController extends Controller
      */
     public function show(Post $post): View
     {
-        if (! $post->is_public && (! auth()->check() || auth()->user()->cannot('view', $post))) {
+        $isScheduledForFuture = $post->is_public
+            && $post->published_at
+            && $post->published_at->isFuture();
+
+        if ((! $post->is_public || $isScheduledForFuture) && (! auth()->check() || auth()->user()->cannot('view', $post))) {
             abort(403);
         }
 
-        $post->load(['user', 'category', 'likes']);
+        $post->load(['user', 'category', 'likes', 'bookmarks']);
         $relatedPosts = Post::query()
             ->public()
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'bookmarks'])
             ->withCount('likes')
             ->where('id', '!=', $post->id)
             ->where('category_id', $post->category_id)
@@ -227,12 +237,14 @@ class PostController extends Controller
 
         unset($data['image']);
 
-        if (($data['is_public'] ?? false) && ! $post->published_at) {
-            $data['published_at'] = now();
-        }
-
         if (($data['is_public'] ?? true) === false) {
             $data['published_at'] = null;
+        } elseif (! empty($data['published_at'])) {
+            $data['published_at'] = $data['published_at'];
+        } elseif (! $post->published_at) {
+            $data['published_at'] = now();
+        } else {
+            unset($data['published_at']);
         }
 
         $post->update($data);

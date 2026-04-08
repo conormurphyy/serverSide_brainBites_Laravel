@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\BrainBotController;
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
@@ -28,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
     Route::post('/posts/{post}/like', LikeController::class)->name('posts.like');
+    Route::post('/posts/{post}/bookmark', BookmarkController::class)->name('posts.bookmark');
+    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
