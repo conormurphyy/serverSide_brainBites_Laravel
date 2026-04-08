@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bookmark;
+use App\Models\ContactMessage;
+use App\Models\Like;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
@@ -18,6 +21,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $admin = User::query()->updateOrCreate([
+            'email' => 'admin@brainbites.test',
+        ], [
+            'name' => 'BrainBites Admin',
+            'role' => 'admin',
+            'password' => Hash::make('password'),
+        ]);
+
         $contributor = User::query()->updateOrCreate([
             'email' => 'chemist@brainbites.test',
         ], [
@@ -26,15 +37,15 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        User::query()->updateOrCreate([
-            'email' => 'admin@brainbites.test',
+        $researcher = User::query()->updateOrCreate([
+            'email' => 'researcher@brainbites.test',
         ], [
-            'name' => 'BrainBites Admin',
-            'role' => 'admin',
+            'name' => 'Insight Researcher',
+            'role' => 'contributor',
             'password' => Hash::make('password'),
         ]);
 
-        User::query()->updateOrCreate([
+        $reader = User::query()->updateOrCreate([
             'email' => 'reader@brainbites.test',
         ], [
             'name' => 'Curious Reader',
@@ -53,11 +64,13 @@ class DatabaseSeeder extends Seeder
             ], $category);
         });
 
-        foreach ($this->samplePosts() as $post) {
-            Post::query()->updateOrCreate([
+        $posts = collect($this->samplePosts())->map(function (array $post) use ($categories, $contributor, $researcher): Post {
+            $author = $post['author'] === 'researcher' ? $researcher : $contributor;
+
+            return Post::query()->updateOrCreate([
                 'slug' => $post['slug'],
             ], [
-                'user_id' => $contributor->id,
+                'user_id' => $author->id,
                 'category_id' => $categories->firstWhere('slug', $post['category_slug'])->id,
                 'title' => $post['title'],
                 'summary' => $post['summary'],
@@ -70,10 +83,16 @@ class DatabaseSeeder extends Seeder
                     $post['accent'],
                     $post['secondary']
                 ),
-                'is_public' => true,
-                'published_at' => now()->subDays($post['published_days_ago']),
+                'is_public' => $post['is_public'],
+                'published_at' => $post['published_at'] ?? now()->subDays($post['published_days_ago']),
             ]);
-        }
+        });
+
+        $publicPosts = $posts->where('is_public', true)->values();
+
+        $this->seedLikes($publicPosts, $reader, $contributor, $admin);
+        $this->seedBookmarks($publicPosts, $reader, $contributor);
+        $this->seedContactMessages($admin);
     }
 
     /**
@@ -83,6 +102,7 @@ class DatabaseSeeder extends Seeder
     {
         return [
             [
+                'author' => 'contributor',
                 'category_slug' => 'technology',
                 'slug' => 'how-does-a-database-index-speed-up-queries',
                 'title' => 'How does a database index speed up queries?',
@@ -91,8 +111,10 @@ class DatabaseSeeder extends Seeder
                 'published_days_ago' => 6,
                 'accent' => '#0ea5e9',
                 'secondary' => '#1d4ed8',
+                'is_public' => true,
             ],
             [
+                'author' => 'researcher',
                 'category_slug' => 'biology',
                 'slug' => 'why-does-sleep-help-you-remember-things',
                 'title' => 'Why does sleep help you remember things?',
@@ -101,8 +123,10 @@ class DatabaseSeeder extends Seeder
                 'published_days_ago' => 5,
                 'accent' => '#16a34a',
                 'secondary' => '#0f766e',
+                'is_public' => true,
             ],
             [
+                'author' => 'contributor',
                 'category_slug' => 'chemistry',
                 'slug' => 'why-does-salt-help-melt-ice',
                 'title' => 'Why does salt help melt ice?',
@@ -111,8 +135,10 @@ class DatabaseSeeder extends Seeder
                 'published_days_ago' => 4,
                 'accent' => '#f97316',
                 'secondary' => '#b45309',
+                'is_public' => true,
             ],
             [
+                'author' => 'researcher',
                 'category_slug' => 'physics',
                 'slug' => 'what-causes-a-rainbow-in-the-sky',
                 'title' => 'What causes a rainbow in the sky?',
@@ -121,8 +147,10 @@ class DatabaseSeeder extends Seeder
                 'published_days_ago' => 3,
                 'accent' => '#8b5cf6',
                 'secondary' => '#4f46e5',
+                'is_public' => true,
             ],
             [
+                'author' => 'contributor',
                 'category_slug' => 'technology',
                 'slug' => 'what-is-an-api-in-simple-terms',
                 'title' => 'What is an API in simple terms?',
@@ -131,8 +159,10 @@ class DatabaseSeeder extends Seeder
                 'published_days_ago' => 2,
                 'accent' => '#06b6d4',
                 'secondary' => '#0ea5e9',
+                'is_public' => true,
             ],
             [
+                'author' => 'researcher',
                 'category_slug' => 'biology',
                 'slug' => 'how-does-the-heart-pump-blood-through-the-body',
                 'title' => 'How does the heart pump blood through the body?',
@@ -141,8 +171,10 @@ class DatabaseSeeder extends Seeder
                 'published_days_ago' => 1,
                 'accent' => '#ef4444',
                 'secondary' => '#be123c',
+                'is_public' => true,
             ],
             [
+                'author' => 'contributor',
                 'category_slug' => 'chemistry',
                 'slug' => 'why-does-iron-rust-over-time',
                 'title' => 'Why does iron rust over time?',
@@ -151,8 +183,135 @@ class DatabaseSeeder extends Seeder
                 'published_days_ago' => 0,
                 'accent' => '#f59e0b',
                 'secondary' => '#7c2d12',
+                'is_public' => true,
+            ],
+            [
+                'author' => 'researcher',
+                'category_slug' => 'physics',
+                'slug' => 'why-is-light-speed-so-hard-to-surpass',
+                'title' => 'Why is light speed so hard to surpass?',
+                'summary' => 'Relativity says the closer something gets to light speed, the more energy it takes to keep accelerating.',
+                'body' => 'According to relativity, objects with mass need more and more energy to accelerate as they approach the speed of light. That means getting all the way to light speed would require infinite energy, which is why it is treated as a universal limit. This is one of the central ideas behind modern physics and why space travel has such hard constraints.',
+                'published_days_ago' => 0,
+                'accent' => '#6366f1',
+                'secondary' => '#0f172a',
+                'is_public' => true,
+                'published_at' => now()->addDays(3),
+            ],
+            [
+                'author' => 'contributor',
+                'category_slug' => 'technology',
+                'slug' => 'how-does-cache-invalidation-work-in-practice',
+                'title' => 'How does cache invalidation work in practice?',
+                'summary' => 'Cached data is cleared or refreshed when the underlying source changes, so users do not see stale results.',
+                'body' => 'Cache invalidation is the process of deciding when stored data should no longer be trusted. Some systems use explicit events to clear cache keys, while others rely on time-to-live expirations. It is one of the hardest problems in software because the more aggressively you cache, the more careful you must be about keeping data fresh.',
+                'published_days_ago' => 0,
+                'accent' => '#14b8a6',
+                'secondary' => '#0f766e',
+                'is_public' => false,
+                'published_at' => now()->addDays(2),
+            ],
+            [
+                'author' => 'researcher',
+                'category_slug' => 'biology',
+                'slug' => 'why-are-some-animals-nocturnal',
+                'title' => 'Why are some animals nocturnal?',
+                'summary' => 'Nocturnal behavior can help animals avoid predators, reduce heat stress, or hunt more effectively.',
+                'body' => 'Some animals are adapted to be active at night because it gives them advantages in survival and hunting. Cooler temperatures can help in hot climates, and nighttime activity can reduce competition with daytime species. Over time, those pressures shape senses, behavior, and even physical features that support life after dark.',
+                'published_days_ago' => 0,
+                'accent' => '#22c55e',
+                'secondary' => '#14532d',
+                'is_public' => false,
+                'published_at' => now()->addDays(5),
             ],
         ];
+    }
+
+    private function seedLikes($posts, User $reader, User $contributor, User $admin): void
+    {
+        $likeMap = [
+            [$reader, 'how-does-a-database-index-speed-up-queries'],
+            [$reader, 'why-does-sleep-help-you-remember-things'],
+            [$reader, 'what-is-an-api-in-simple-terms'],
+            [$contributor, 'why-does-salt-help-melt-ice'],
+            [$contributor, 'what-causes-a-rainbow-in-the-sky'],
+            [$contributor, 'how-does-the-heart-pump-blood-through-the-body'],
+            [$admin, 'why-does-iron-rust-over-time'],
+            [$admin, 'how-does-cache-invalidation-work-in-practice'],
+        ];
+
+        foreach ($likeMap as [$user, $slug]) {
+            $post = $posts->firstWhere('slug', $slug);
+
+            if (! $post) {
+                continue;
+            }
+
+            Like::query()->updateOrCreate([
+                'user_id' => $user->id,
+                'post_id' => $post->id,
+            ]);
+        }
+    }
+
+    private function seedBookmarks($posts, User $reader, User $contributor): void
+    {
+        $bookmarkMap = [
+            [$reader, 'how-does-a-database-index-speed-up-queries'],
+            [$reader, 'what-is-an-api-in-simple-terms'],
+            [$reader, 'why-is-light-speed-so-hard-to-surpass'],
+            [$contributor, 'why-does-sleep-help-you-remember-things'],
+            [$contributor, 'how-does-cache-invalidation-work-in-practice'],
+        ];
+
+        foreach ($bookmarkMap as [$user, $slug]) {
+            $post = $posts->firstWhere('slug', $slug);
+
+            if (! $post) {
+                continue;
+            }
+
+            Bookmark::query()->updateOrCreate([
+                'user_id' => $user->id,
+                'post_id' => $post->id,
+            ]);
+        }
+    }
+
+    private function seedContactMessages(User $admin): void
+    {
+        $messages = [
+            [
+                'name' => 'Ari Stone',
+                'email' => 'ari@example.com',
+                'topic' => 'Feature request',
+                'message' => 'Could we get a pinned posts section on the homepage? It would help new visitors understand the most important answers faster.',
+                'is_resolved' => false,
+            ],
+            [
+                'name' => 'Mina Patel',
+                'email' => 'mina@example.com',
+                'topic' => 'Bug report',
+                'message' => 'The bookmarks page felt empty after I saved a post once and refreshed. It might need a clearer empty state or sync check.',
+                'is_resolved' => false,
+            ],
+            [
+                'name' => 'Jordan Lee',
+                'email' => 'jordan@example.com',
+                'topic' => 'Partnership',
+                'message' => 'We would love to discuss a school pilot for BrainBites. The visual learning approach could be a great fit for our science program.',
+                'is_resolved' => true,
+                'resolved_by' => $admin->id,
+                'resolved_at' => now()->subDay(),
+            ],
+        ];
+
+        foreach ($messages as $message) {
+            ContactMessage::query()->updateOrCreate([
+                'email' => $message['email'],
+                'topic' => $message['topic'],
+            ], $message);
+        }
     }
 
     private function sampleImageBase64(string $title, string $category, string $accent, string $secondary): string
