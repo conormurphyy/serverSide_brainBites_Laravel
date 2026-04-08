@@ -35,7 +35,9 @@
                         <a href="{{ route('bookmarks.index') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Bookmarks</a>
                         <a href="{{ route('dashboard') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Dashboard</a>
                         <a href="{{ route('posts.create') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Add Post</a>
-                        <a href="{{ route('profile.edit') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70">Profile</a>
+                        <a href="{{ route('profile.edit') }}" class="rounded-md px-3 py-2 transition hover:bg-white/70" aria-label="Profile">
+                            <img src="{{ auth()->user()->profile_photo_url }}" alt="{{ auth()->user()->name }}" class="h-9 w-9 rounded-full object-cover border border-cyan-200 shadow-sm">
+                        </a>
 
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

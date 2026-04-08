@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('likes', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('post_id');
-            $table->timestamps();
-
-            $table->unique(['user_id', 'post_id']);
+        Schema::table('users', function (Blueprint $table): void {
+            $table->string('profile_photo_path')->nullable()->after('email_verified_at');
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('likes');
+        Schema::table('users', function (Blueprint $table): void {
+            $table->dropColumn('profile_photo_path');
+        });
     }
 };

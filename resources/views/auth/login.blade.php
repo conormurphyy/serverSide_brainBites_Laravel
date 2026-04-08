@@ -12,6 +12,7 @@
                 Continue with Google
             </a>
             <p class="mt-2 text-center text-xs text-gray-500">Use Google to sign in faster without remembering another password.</p>
+            <p class="mt-1 text-center text-xs text-gray-500">If you already have a password account, sign in first and link Google from your profile.</p>
         </div>
 
         <!-- Email Address -->

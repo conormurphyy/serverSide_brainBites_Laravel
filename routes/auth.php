@@ -26,9 +26,6 @@ Route::middleware('guest')->group(function () {
     Route::get('auth/google', [GoogleAuthController::class, 'redirect'])
         ->name('auth.google.redirect');
 
-    Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
-        ->name('auth.google.callback');
-
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 
@@ -63,4 +60,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    Route::get('auth/google/link', [GoogleAuthController::class, 'link'])
+        ->name('auth.google.link');
 });
+
+Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
+    ->name('auth.google.callback');

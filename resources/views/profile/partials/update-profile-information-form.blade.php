@@ -9,11 +9,38 @@
         </p>
     </header>
 
+    <div class="mt-6 flex items-center gap-4">
+        <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" class="h-20 w-20 rounded-full object-cover ring-2 ring-indigo-100">
+        <div>
+            <p class="text-sm font-medium text-gray-900">Profile picture</p>
+            <p class="text-sm text-gray-600">Upload a square JPG, PNG, WebP, or AVIF image.</p>
+        </div>
+    </div>
+
+    <div class="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-900">Google account</p>
+                <p class="text-sm text-gray-600">
+                    {{ $user->google_id ? 'Connected to Google sign-in.' : 'Not connected yet. Link Google for one-click sign-in.' }}
+                </p>
+            </div>
+
+            @if ($user->google_id)
+                <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Connected</span>
+            @else
+                <a href="{{ route('auth.google.link') }}" class="bb-button-secondary inline-flex justify-center">
+                    Connect Google Account
+                </a>
+            @endif
+        </div>
+    </div>
+
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
 
@@ -45,6 +72,13 @@
                     @endif
                 </div>
             @endif
+        </div>
+
+        <div>
+            <x-input-label for="profile_photo" :value="__('Profile Picture')" />
+            <input id="profile_photo" name="profile_photo" type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
+            <p class="mt-2 text-sm text-gray-600">Leave this empty to keep your current picture.</p>
         </div>
 
         <div class="flex items-center gap-4">
