@@ -425,10 +425,19 @@ function initializeMobileNav() {
 		return;
 	}
 
+	if (toggle.dataset.navBound === 'true') {
+		return;
+	}
+
+	toggle.dataset.navBound = 'true';
+
 	const setOpen = (open) => {
 		panel.classList.toggle('hidden', !open);
 		toggle.setAttribute('aria-expanded', String(open));
+		toggle.textContent = open ? 'Close' : 'Menu';
 	};
+
+	setOpen(!panel.classList.contains('hidden'));
 
 	toggle.addEventListener('click', () => {
 		const open = panel.classList.contains('hidden');
@@ -528,16 +537,44 @@ function initializeReadingTools() {
 	if (!content) return;
 
 	const buttons = [...document.querySelectorAll('[data-font-size]')];
+	if (!buttons.length) {
+		return;
+	}
+
+	const storageKey = 'bb-reading-size';
+	const allowedSizes = new Set(['small', 'normal', 'large']);
+
+	const applySize = (size) => {
+		const safeSize = allowedSizes.has(size) ? size : 'normal';
+		content.classList.remove('bb-reading-small', 'bb-reading-large');
+
+		if (safeSize === 'small') {
+			content.classList.add('bb-reading-small');
+		} else if (safeSize === 'large') {
+			content.classList.add('bb-reading-large');
+		}
+
+		buttons.forEach((button) => {
+			const isActive = button.dataset.fontSize === safeSize;
+			button.setAttribute('aria-pressed', String(isActive));
+			button.classList.toggle('ring-2', isActive);
+			button.classList.toggle('ring-cyan-300', isActive);
+		});
+	};
+
+	const saved = localStorage.getItem(storageKey);
+	applySize(saved ?? 'normal');
+
 	buttons.forEach((button) => {
+		if (button.dataset.readingBound === 'true') {
+			return;
+		}
+
+		button.dataset.readingBound = 'true';
 		button.addEventListener('click', () => {
 			const size = button.dataset.fontSize;
-			content.classList.remove('bb-reading-small', 'bb-reading-large');
-
-			if (size === 'small') {
-				content.classList.add('bb-reading-small');
-			} else if (size === 'large') {
-				content.classList.add('bb-reading-large');
-			}
+			applySize(size);
+			localStorage.setItem(storageKey, allowedSizes.has(size) ? size : 'normal');
 		});
 	});
 }

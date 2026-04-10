@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comments', function (Blueprint $table): void {
-            $table->foreignId('parent_comment_id')
-                ->nullable()
-                ->after('post_id')
-                ->constrained('comments')
-                ->nullOnDelete();
+        if (! Schema::hasColumn('comments', 'parent_comment_id')) {
+            Schema::table('comments', function (Blueprint $table): void {
+                $table->foreignId('parent_comment_id')
+                    ->nullable()
+                    ->after('post_id')
+                    ->constrained('comments')
+                    ->nullOnDelete();
 
-            $table->index(['parent_comment_id', 'created_at']);
-        });
+                $table->index(['parent_comment_id', 'created_at']);
+            });
+        }
     }
 
     /**
@@ -27,9 +29,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('comments', function (Blueprint $table): void {
-            $table->dropConstrainedForeignId('parent_comment_id');
-            $table->dropIndex(['parent_comment_id', 'created_at']);
-        });
+        if (Schema::hasColumn('comments', 'parent_comment_id')) {
+            Schema::table('comments', function (Blueprint $table): void {
+                $table->dropConstrainedForeignId('parent_comment_id');
+            });
+        }
     }
 };

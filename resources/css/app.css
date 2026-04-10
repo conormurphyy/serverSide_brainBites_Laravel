@@ -185,6 +185,7 @@
 
 	.bb-post-body {
 		@apply rounded-2xl border border-white/70 bg-white p-5 shadow-lg shadow-slate-900/10;
+		color: #0f172a;
 	}
 
 	.bb-hero-canvas {
@@ -309,12 +310,21 @@
 		@apply mt-1 text-xs font-medium text-red-600;
 	}
 
+	#postContent {
+		font-size: 1.06rem;
+		line-height: 1.85;
+		transition: font-size 180ms ease, line-height 180ms ease;
+		color: #0f172a;
+	}
+
 	#postContent.bb-reading-small {
-		font-size: 0.95rem;
+		font-size: 0.96rem;
+		line-height: 1.7;
 	}
 
 	#postContent.bb-reading-large {
-		font-size: 1.12rem;
+		font-size: 1.22rem;
+		line-height: 2;
 	}
 
 	.bb-brainbot-toggle {
