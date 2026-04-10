@@ -22,7 +22,7 @@
 
     <section class="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
         <div class="bb-card">
-            <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data" novalidate>
+            <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data" novalidate data-draft-form data-draft-key="bb-draft-post-create">
                 @csrf
                 @include('posts._form')
             </form>

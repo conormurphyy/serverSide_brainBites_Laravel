@@ -202,6 +202,26 @@
 		@apply inline-flex items-center rounded-full border border-cyan-200/80 bg-cyan-100/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-900;
 	}
 
+	.bb-chip-technology {
+		@apply border-sky-200 bg-sky-100/90 text-sky-900;
+	}
+
+	.bb-chip-science {
+		@apply border-violet-200 bg-violet-100/90 text-violet-900;
+	}
+
+	.bb-chip-health {
+		@apply border-emerald-200 bg-emerald-100/90 text-emerald-900;
+	}
+
+	.bb-chip-finance {
+		@apply border-amber-200 bg-amber-100/90 text-amber-900;
+	}
+
+	.bb-chip-education {
+		@apply border-fuchsia-200 bg-fuchsia-100/90 text-fuchsia-900;
+	}
+
 	.bb-button {
 		@apply inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-900/30 transition hover:-translate-y-0.5 hover:bg-cyan-700;
 	}
@@ -482,6 +502,59 @@
 	body.theme-dark .bb-modal-panel {
 		@apply border-slate-700 bg-slate-900;
 	}
+
+	.bb-mark {
+		background: rgba(251, 191, 36, 0.36);
+		padding: 0 0.14rem;
+		border-radius: 0.2rem;
+	}
+
+	.bb-toast {
+		position: fixed;
+		left: 50%;
+		bottom: 1.25rem;
+		transform: translateX(-50%);
+		z-index: 140;
+		background: rgba(2, 6, 23, 0.92);
+		color: #e2e8f0;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 9999px;
+		padding: 0.55rem 0.95rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+		box-shadow: 0 16px 34px rgba(15, 23, 42, 0.32);
+	}
+
+	.bb-backtotop {
+		position: fixed;
+		right: 1rem;
+		bottom: 1rem;
+		z-index: 120;
+		border: 1px solid rgba(255, 255, 255, 0.7);
+		background: linear-gradient(135deg, #0f172a, #155e75);
+		color: #ecfeff;
+		font-size: 0.8rem;
+		font-weight: 700;
+		padding: 0.52rem 0.85rem;
+		border-radius: 9999px;
+		box-shadow: 0 12px 24px rgba(2, 8, 23, 0.34);
+	}
+
+	.bb-backtotop:hover {
+		transform: translateY(-2px);
+	}
+
+	.bb-action-pulse {
+		animation: bbActionPulse 320ms ease-out;
+	}
+
+	.bb-recent-list {
+		@apply mt-4 grid gap-3 sm:grid-cols-3;
+	}
+
+	.bb-toc-link {
+		@apply block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50;
+	}
 }
 
 @keyframes bbFloat {
@@ -504,5 +577,17 @@
 
 	50% {
 		transform: scale(1.08);
+	}
+}
+
+@keyframes bbActionPulse {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.06);
+	}
+	100% {
+		transform: scale(1);
 	}
 }

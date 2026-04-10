@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	initializeReadingTools();
 	initializeDeletePrompts();
 	initializeBrainBot();
+	initializeBackToTop();
+	initializeKeyboardShortcuts();
+	initializeCopyLinks();
+	initializeRecentViews();
+	initializeDraftAutosave();
+	initializeActionFeedback();
 
 	const counterInputs = document.querySelectorAll('[data-counter-target]');
 
@@ -413,6 +419,217 @@ function initializeThemeToggle() {
 			const next = root.classList.contains('theme-dark') ? 'light' : 'dark';
 			localStorage.setItem(key, next);
 			applyTheme(next);
+			showToast(`Theme switched to ${next}.`);
+		});
+	});
+}
+
+function showToast(message) {
+	const toast = document.getElementById('bbToast');
+	if (!toast) return;
+
+	toast.textContent = message;
+	toast.hidden = false;
+
+	window.clearTimeout(showToast.timer);
+	showToast.timer = window.setTimeout(() => {
+		toast.hidden = true;
+	}, 1800);
+}
+
+showToast.timer = 0;
+
+function initializeBackToTop() {
+	const button = document.getElementById('backToTop');
+	if (!button) return;
+
+	const sync = () => {
+		button.hidden = window.scrollY < 360;
+	};
+
+	window.addEventListener('scroll', sync, { passive: true });
+	button.addEventListener('click', () => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	});
+
+	sync();
+}
+
+function initializeKeyboardShortcuts() {
+	let gPressedAt = 0;
+
+	document.addEventListener('keydown', (event) => {
+		const target = event.target;
+		const typing = target instanceof HTMLElement
+			&& (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+
+		if (typing && event.key !== 'Escape') {
+			return;
+		}
+
+		if (event.key === '/') {
+			event.preventDefault();
+			const search = document.getElementById('search');
+			if (search instanceof HTMLInputElement) {
+				search.focus();
+				search.select();
+			}
+			return;
+		}
+
+		if (event.key.toLowerCase() === 'n') {
+			const createLink = document.querySelector('a[href*="/posts/create"]');
+			if (createLink instanceof HTMLAnchorElement) {
+				window.location.href = createLink.href;
+			}
+			return;
+		}
+
+		if (event.key.toLowerCase() === 'g') {
+			gPressedAt = Date.now();
+			return;
+		}
+
+		if (event.key.toLowerCase() === 'h' && Date.now() - gPressedAt < 800) {
+			window.location.href = '/';
+		}
+	});
+}
+
+function initializeCopyLinks() {
+	const buttons = document.querySelectorAll('[data-copy-url]');
+	if (!buttons.length) return;
+
+	buttons.forEach((button) => {
+		button.addEventListener('click', async () => {
+			const url = button.getAttribute('data-copy-url');
+			if (!url) return;
+
+			try {
+				await navigator.clipboard.writeText(url);
+				showToast('Link copied.');
+			} catch {
+				showToast('Could not copy link.');
+			}
+		});
+	});
+}
+
+function initializeRecentViews() {
+	const marker = document.querySelector('[data-recent-view-post]');
+	const list = document.getElementById('recentViews');
+	const key = 'bb-recent-posts';
+
+	if (marker) {
+		try {
+			const current = {
+				title: marker.getAttribute('data-title') || '',
+				url: marker.getAttribute('data-url') || '',
+				category: marker.getAttribute('data-category') || '',
+			};
+
+			const saved = JSON.parse(localStorage.getItem(key) || '[]');
+			const cleaned = Array.isArray(saved) ? saved.filter((item) => item && item.url && item.url !== current.url) : [];
+			const next = [current, ...cleaned].slice(0, 3);
+			localStorage.setItem(key, JSON.stringify(next));
+		} catch {
+			// Ignore localStorage errors.
+		}
+	}
+
+	if (list) {
+		try {
+			const saved = JSON.parse(localStorage.getItem(key) || '[]');
+			const entries = Array.isArray(saved) ? saved.slice(0, 3) : [];
+
+			if (!entries.length) {
+				list.innerHTML = '<p class="text-sm text-slate-600">Your recently viewed posts will appear here.</p>';
+				return;
+			}
+
+			list.innerHTML = entries.map((item) => {
+				const safeTitle = String(item.title || 'Untitled').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+				const safeCategory = String(item.category || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+				const safeUrl = String(item.url || '#').replace(/"/g, '&quot;');
+
+				return `<a class="bb-card block" href="${safeUrl}"><p class="text-xs font-semibold uppercase tracking-wide text-cyan-700">${safeCategory || 'Post'}</p><p class="mt-1 text-sm font-semibold text-slate-900">${safeTitle}</p></a>`;
+			}).join('');
+		} catch {
+			list.innerHTML = '<p class="text-sm text-slate-600">Recent views are unavailable in this browser.</p>';
+		}
+	}
+}
+
+function initializeDraftAutosave() {
+	const form = document.querySelector('[data-draft-form]');
+	if (!(form instanceof HTMLFormElement)) return;
+
+	const key = form.getAttribute('data-draft-key');
+	if (!key) return;
+
+	const fields = ['title', 'summary', 'body', 'category_id', 'published_at'];
+
+	const save = () => {
+		const payload = {};
+		fields.forEach((id) => {
+			const element = form.querySelector(`#${id}`);
+			if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
+				payload[id] = element.value;
+			}
+		});
+
+		const checkbox = form.querySelector('input[name="is_public"]');
+		if (checkbox instanceof HTMLInputElement) {
+			payload.is_public = checkbox.checked;
+		}
+
+		localStorage.setItem(key, JSON.stringify(payload));
+	};
+
+	const load = () => {
+		const raw = localStorage.getItem(key);
+		if (!raw) return;
+
+		let payload;
+		try {
+			payload = JSON.parse(raw);
+		} catch {
+			return;
+		}
+
+		fields.forEach((id) => {
+			const element = form.querySelector(`#${id}`);
+			if (!(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement)) return;
+			if (String(element.value || '').trim() !== '') return;
+			if (typeof payload[id] === 'string') {
+				element.value = payload[id];
+			}
+		});
+
+		const checkbox = form.querySelector('input[name="is_public"]');
+		if (checkbox instanceof HTMLInputElement && typeof payload.is_public === 'boolean') {
+			checkbox.checked = payload.is_public;
+		}
+	};
+
+	load();
+
+	form.addEventListener('input', save);
+	form.addEventListener('change', save);
+	form.addEventListener('submit', () => {
+		localStorage.removeItem(key);
+	});
+}
+
+function initializeActionFeedback() {
+	document.querySelectorAll('form[action*="/like"], form[action*="/bookmark"]').forEach((form) => {
+		if (!(form instanceof HTMLFormElement)) return;
+
+		form.addEventListener('submit', (event) => {
+			const submitter = event.submitter;
+			if (submitter instanceof HTMLElement) {
+				submitter.classList.add('bb-action-pulse');
+			}
 		});
 	});
 }
@@ -543,10 +760,19 @@ function initializeReadingTools() {
 
 	const storageKey = 'bb-reading-size';
 	const allowedSizes = new Set(['small', 'normal', 'large']);
+	const presets = {
+		small: { fontSize: '0.96rem', lineHeight: '1.7' },
+		normal: { fontSize: '1.06rem', lineHeight: '1.85' },
+		large: { fontSize: '1.22rem', lineHeight: '2' },
+	};
 
 	const applySize = (size) => {
 		const safeSize = allowedSizes.has(size) ? size : 'normal';
 		content.classList.remove('bb-reading-small', 'bb-reading-large');
+
+		const preset = presets[safeSize];
+		content.style.fontSize = preset.fontSize;
+		content.style.lineHeight = preset.lineHeight;
 
 		if (safeSize === 'small') {
 			content.classList.add('bb-reading-small');

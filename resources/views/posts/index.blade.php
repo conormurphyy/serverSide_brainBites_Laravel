@@ -3,6 +3,20 @@
 @section('title', 'BrainBites | Curiosity, explained')
 
 @section('content')
+    @php
+        $highlight = function (string $text) use ($search): string {
+            $escaped = e($text);
+
+            if ($search === '') {
+                return $escaped;
+            }
+
+            $pattern = '/('.preg_quote($search, '/').')/i';
+
+            return preg_replace($pattern, '<mark class="bb-mark">$1</mark>', $escaped) ?? $escaped;
+        };
+    @endphp
+
     <section class="bb-hero-grid mb-8">
         <div class="bb-hero-content">
             <p class="bb-kicker">Curiosity Explorer</p>
@@ -79,7 +93,7 @@
                             class="h-52 w-full rounded-xl object-cover"
                         >
                         <div class="mt-3">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-cyan-700">{{ $imagePost->category->name }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-cyan-700">{{ $imagePost->category->name }} • {{ $imagePost->reading_time_minutes }} min</p>
                             <p class="mt-1 text-sm font-semibold text-slate-900">{{ $imagePost->title }}</p>
                         </div>
                     </a>
@@ -128,6 +142,14 @@
         </form>
     </section>
 
+    <section class="bb-card mb-10">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold text-slate-900">Recently Viewed</h2>
+            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Quick Return</span>
+        </div>
+        <div id="recentViews" class="bb-recent-list"></div>
+    </section>
+
     @if ($featuredPosts->isNotEmpty())
         <section class="mb-10">
             <h2 class="mb-4 text-xl font-bold text-slate-900">Featured Visual Stories</h2>
@@ -146,7 +168,7 @@
                         <p class="mt-2 text-sm text-cyan-50/85">{{ $featured->summary }}</p>
                         <div class="mt-4 flex items-center justify-between text-xs text-cyan-100/75">
                             <span>{{ $featured->likes_count }} likes</span>
-                            <span class="font-semibold text-lime-200">Read</span>
+                            <span class="font-semibold text-lime-200">{{ $featured->reading_time_minutes }} min</span>
                         </div>
                     </a>
                 @endforeach
@@ -216,6 +238,7 @@
                             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">{{ $pick->category->name }}</p>
                             <p class="mt-1 font-semibold text-slate-900">{{ $pick->title }}</p>
                             <p class="mt-1 text-sm text-slate-600">{{ $pick->summary }}</p>
+                            <p class="mt-2 text-xs font-medium text-slate-500">{{ $pick->reading_time_minutes }} min read</p>
                         </a>
                     @endforeach
                 </div>
@@ -234,6 +257,12 @@
         @if ($posts->isEmpty())
             <div class="bb-card">
                 <p class="text-slate-600">No posts match your search yet. Try another keyword or category.</p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <a href="{{ route('posts.index') }}" class="bb-button-secondary">Clear filters</a>
+                    @auth
+                        <a href="{{ route('posts.create') }}" class="bb-button">Create a post</a>
+                    @endauth
+                </div>
             </div>
         @endif
 
@@ -249,14 +278,14 @@
                     >
 
                     <div class="mt-4 flex items-center justify-between text-xs text-slate-500">
-                        <span class="bb-chip">{{ $post->category->name }}</span>
+                        <span class="{{ $post->category_badge_class }}">{{ $post->category->name }}</span>
                         @if (! $post->is_public)
                             <span class="rounded-full bg-amber-100 px-3 py-1 font-semibold text-amber-800">Draft</span>
                         @endif
                     </div>
 
-                    <h3 class="mt-4 text-lg font-bold text-slate-900">{{ $post->title }}</h3>
-                    <p class="mt-2 text-sm text-slate-600">{{ $post->summary }}</p>
+                    <h3 class="mt-4 text-lg font-bold text-slate-900">{!! $highlight($post->title) !!}</h3>
+                    <p class="mt-2 text-sm text-slate-600">{!! $highlight($post->summary) !!}</p>
 
                     <div class="mt-5 flex items-center justify-between text-xs text-slate-500">
                         <span>By {{ $post->user->name }}</span>
@@ -264,12 +293,13 @@
                     </div>
 
                     <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
-                        <span></span>
+                        <span>{{ $post->reading_time_minutes }} min read</span>
                         <span>{{ $post->comments_count }} comments</span>
                     </div>
 
                     <div class="mt-4 flex items-center gap-2">
                         <a href="{{ route('posts.show', $post) }}" class="bb-button-secondary">View</a>
+                        <button type="button" class="bb-button-secondary" data-copy-url="{{ route('posts.show', $post) }}">Copy link</button>
 
                         @auth
                             @unless (auth()->user()->isAdmin())

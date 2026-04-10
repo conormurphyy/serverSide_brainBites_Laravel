@@ -21,6 +21,7 @@
     @if ($bookmarkedPosts->isEmpty())
         <div class="bb-card">
             <p class="text-slate-600">No bookmarks yet. Explore posts and save the ones you like.</p>
+            <p class="mt-2 text-sm text-slate-500">Tip: tap Save on any post card to build your study stack.</p>
             <a href="{{ route('posts.index') }}" class="bb-button mt-4 inline-flex">Explore Posts</a>
         </div>
     @else
@@ -36,7 +37,7 @@
                     >
 
                     <div class="mt-4 flex items-center justify-between text-xs text-slate-500">
-                        <span class="bb-chip">{{ $post->category->name }}</span>
+                        <span class="{{ $post->category_badge_class }}">{{ $post->category->name }}</span>
                         <span>{{ $post->likes_count }} likes</span>
                     </div>
 
@@ -45,11 +46,12 @@
 
                     <div class="mt-5 flex items-center justify-between text-xs text-slate-500">
                         <span>By {{ $post->user->name }}</span>
-                        <span>{{ optional($post->published_at)->format('M d, Y') ?? 'Draft' }}</span>
+                        <span>{{ $post->reading_time_minutes }} min read</span>
                     </div>
 
                     <div class="mt-4 flex flex-wrap items-center gap-2">
                         <a href="{{ route('posts.show', $post) }}" class="bb-button-secondary">View</a>
+                        <button type="button" class="bb-button-secondary" data-copy-url="{{ route('posts.show', $post) }}">Copy link</button>
 
                         <form action="{{ route('posts.bookmark', $post) }}" method="POST">
                             @csrf

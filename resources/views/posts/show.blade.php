@@ -3,6 +3,30 @@
 @section('title', 'BrainBites | '.$post->title)
 
 @section('content')
+    @php
+        $sections = collect(preg_split('/\R{2,}/', trim($post->body)) ?: [])
+            ->map(fn (string $chunk): string => trim($chunk))
+            ->filter(fn (string $chunk): bool => $chunk !== '')
+            ->values();
+
+        $tocSections = $sections->take(8)->map(function (string $chunk, int $index): array {
+            $label = \Illuminate\Support\Str::limit(trim(str_replace(["\r", "\n"], ' ', $chunk)), 58);
+
+            return [
+                'id' => 'section-'.($index + 1),
+                'label' => $label === '' ? 'Section '.($index + 1) : $label,
+            ];
+        });
+    @endphp
+
+    <div
+        data-recent-view-post
+        data-title="{{ $post->title }}"
+        data-url="{{ route('posts.show', $post) }}"
+        data-category="{{ $post->category->name }}"
+        hidden
+    ></div>
+
     <section class="bb-cosmic-banner mb-8">
         <div>
             <p class="bb-chip">Deep Dive</p>
@@ -18,14 +42,16 @@
                 <button class="bb-button-secondary border-white/30 bg-white/10 text-white hover:bg-white/20" type="button" data-font-size="normal" aria-pressed="true" aria-label="Set text size to normal">A</button>
                 <button class="bb-button-secondary border-white/30 bg-white/10 text-white hover:bg-white/20" type="button" data-font-size="large" aria-pressed="false" aria-label="Set text size to large">A+</button>
             </div>
+            <p class="mt-3 text-xs text-cyan-100/90">{{ $post->reading_time_minutes }} min read</p>
         </div>
     </section>
 
     <article class="mb-8 grid gap-8 lg:grid-cols-3">
         <div class="lg:col-span-2">
             <div class="mb-4 flex items-center gap-3">
-                <span class="bb-chip">{{ $post->category->name }}</span>
+                <span class="{{ $post->category_badge_class }}">{{ $post->category->name }}</span>
                 <span class="text-xs text-slate-700">By {{ $post->user->name }}</span>
+                <span class="text-xs text-slate-600">{{ $post->reading_time_minutes }} min read</span>
             </div>
 
             <img
@@ -36,13 +62,16 @@
 
             <div class="bb-post-body mt-6">
                 <div id="postContent" class="prose max-w-none text-slate-800 prose-headings:text-slate-900 prose-a:text-cyan-700">
-                    {!! nl2br(e($post->body)) !!}
+                    @foreach ($sections as $index => $chunk)
+                        <p id="section-{{ $index + 1 }}" class="scroll-mt-24">{!! nl2br(e($chunk)) !!}</p>
+                    @endforeach
                 </div>
             </div>
 
             <div class="mt-6 flex flex-wrap items-center gap-3">
                 <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">{{ $post->likes->count() }} likes</span>
                 <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">{{ $post->comments->count() }} comments</span>
+                <button type="button" class="bb-button-secondary" data-copy-url="{{ route('posts.show', $post) }}">Copy link</button>
 
                 @auth
                     @unless (auth()->user()->isAdmin())
@@ -91,6 +120,17 @@
         </div>
 
         <aside class="space-y-4">
+            @if ($tocSections->isNotEmpty())
+                <div class="bb-card">
+                    <h2 class="text-lg font-bold text-slate-900">Table of Contents</h2>
+                    <nav class="mt-3 grid gap-1">
+                        @foreach ($tocSections as $toc)
+                            <a href="#{{ $toc['id'] }}" class="bb-toc-link">{{ $toc['label'] }}</a>
+                        @endforeach
+                    </nav>
+                </div>
+            @endif
+
             <div class="bb-card">
                 <h2 class="text-lg font-bold text-slate-900">Post details</h2>
                 <p class="mt-2 text-sm text-slate-700">Published: {{ optional($post->published_at)->format('M d, Y') ?? 'Draft' }}</p>
@@ -99,6 +139,7 @@
                 @endif
                 <p class="mt-1 text-sm text-slate-700">Visibility: {{ $post->is_public ? 'Public' : 'Private draft' }}</p>
                 <p class="mt-1 text-sm text-slate-700">Category: {{ $post->category->name }}</p>
+                <p class="mt-1 text-sm text-slate-700">Estimated read: {{ $post->reading_time_minutes }} minutes</p>
             </div>
 
             @if ($relatedPosts->isNotEmpty())
@@ -154,49 +195,4 @@
             </section>
         </aside>
     </article>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const content = document.getElementById('postContent');
-            if (!content) return;
-
-            const buttons = [...document.querySelectorAll('[data-font-size]')];
-            if (!buttons.length) return;
-
-            const storageKey = 'bb-reading-size';
-            const presets = {
-                small: { fontSize: '0.96rem', lineHeight: '1.7' },
-                normal: { fontSize: '1.06rem', lineHeight: '1.85' },
-                large: { fontSize: '1.22rem', lineHeight: '2' },
-            };
-
-            const apply = (size) => {
-                const safeSize = Object.prototype.hasOwnProperty.call(presets, size) ? size : 'normal';
-                const preset = presets[safeSize];
-
-                content.style.fontSize = preset.fontSize;
-                content.style.lineHeight = preset.lineHeight;
-
-                buttons.forEach((button) => {
-                    const active = button.dataset.fontSize === safeSize;
-                    button.setAttribute('aria-pressed', String(active));
-                    button.classList.toggle('ring-2', active);
-                    button.classList.toggle('ring-cyan-300', active);
-                });
-
-                localStorage.setItem(storageKey, safeSize);
-            };
-
-            apply(localStorage.getItem(storageKey) || 'normal');
-
-            buttons.forEach((button) => {
-                if (button.dataset.readingBound === 'true') return;
-                button.dataset.readingBound = 'true';
-
-                button.addEventListener('click', () => {
-                    apply(button.dataset.fontSize || 'normal');
-                });
-            });
-        });
-    </script>
 @endsection

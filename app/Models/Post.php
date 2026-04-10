@@ -92,6 +92,31 @@ class Post extends Model
         return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='630'><rect width='100%' height='100%' fill='%231f2937'/><text x='60' y='320' fill='white' font-size='56' font-family='Arial'>No Image Available</text></svg>";
     }
 
+    public function getReadingTimeMinutesAttribute(): int
+    {
+        $text = trim(preg_replace('/\s+/', ' ', strip_tags($this->body ?? '')) ?? '');
+        $wordCount = str_word_count($text);
+
+        if ($wordCount <= 0) {
+            return 1;
+        }
+
+        return max(1, (int) ceil($wordCount / 200));
+    }
+
+    public function getCategoryBadgeClassAttribute(): string
+    {
+        $palette = [
+            'technology' => 'bb-chip bb-chip-technology',
+            'science' => 'bb-chip bb-chip-science',
+            'health' => 'bb-chip bb-chip-health',
+            'finance' => 'bb-chip bb-chip-finance',
+            'education' => 'bb-chip bb-chip-education',
+        ];
+
+        return $palette[$this->category->slug ?? ''] ?? 'bb-chip';
+    }
+
     public function isLikedBy(?User $user): bool
     {
         if (! $user) {
