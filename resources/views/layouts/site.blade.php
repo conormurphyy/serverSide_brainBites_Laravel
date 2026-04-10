@@ -7,9 +7,10 @@
 
         <title>@yield('title', config('app.name', 'BrainBites'))</title>
 
-        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-        <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=2">
+        <link rel="alternate icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
+        <link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v=2">
+        <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}?v=2">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,700|instrument-serif:400" rel="stylesheet" />
