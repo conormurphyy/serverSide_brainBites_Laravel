@@ -93,6 +93,22 @@ function initializePwa() {
 		return;
 	}
 
+	const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+	if (isLocalhost) {
+		navigator.serviceWorker.getRegistrations().then((registrations) => {
+			registrations.forEach((registration) => registration.unregister());
+		});
+
+		if ('caches' in window) {
+			caches.keys().then((keys) => {
+				keys.forEach((key) => caches.delete(key));
+			});
+		}
+
+		return;
+	}
+
 	window.addEventListener('load', () => {
 		navigator.serviceWorker.register('/sw.js').catch(() => {
 			// Ignore registration failures to avoid blocking app interactions.
@@ -1019,16 +1035,21 @@ function initializeParagraphBrainBot() {
 
 		const controls = document.createElement('div');
 		controls.className = 'bb-inline-tools';
+        controls.style.columnGap = '1rem';
+        controls.style.rowGap = '0.85rem';
 
 		const ask = document.createElement('button');
 		ask.type = 'button';
-		ask.className = 'bb-inline-chip';
-		ask.textContent = 'Explain this simpler';
+		ask.className = 'bb-button bb-inline-strong-button';
+		ask.textContent = 'Explain Simpler';
+		ask.setAttribute('aria-label', 'Explain this paragraph in simpler words');
 
 		const pin = document.createElement('button');
 		pin.type = 'button';
-		pin.className = 'bb-inline-chip';
+		pin.className = 'bb-button-secondary bb-inline-strong-button';
 		pin.textContent = 'Pin takeaway';
+		pin.setAttribute('aria-label', 'Pin this paragraph as a takeaway');
+        pin.style.marginLeft = '1rem';
 
 		const output = document.createElement('div');
 		output.className = 'bb-inline-answer';
