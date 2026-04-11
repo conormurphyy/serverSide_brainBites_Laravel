@@ -792,6 +792,15 @@
 		@apply border-slate-700 bg-slate-900;
 	}
 
+	.bb-profile-modal .bg-gray-500 {
+		background: rgba(2, 8, 23, 0.7);
+	}
+
+	body.theme-dark .bb-profile-modal .bg-white {
+		background: rgba(15, 23, 42, 0.95);
+		border-color: rgba(71, 85, 105, 0.8);
+	}
+
 	.bb-mark {
 		background: rgba(251, 191, 36, 0.36);
 		padding: 0 0.14rem;
