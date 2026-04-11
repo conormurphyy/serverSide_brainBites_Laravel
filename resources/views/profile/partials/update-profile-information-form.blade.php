@@ -51,6 +51,13 @@
         </div>
 
         <div>
+            <label for="username" class="bb-label">Public Username</label>
+            <input id="username" name="username" type="text" class="bb-input" value="{{ old('username', $user->username) }}" required maxlength="60" autocomplete="username" placeholder="your_username">
+            <x-input-error class="mt-2" :messages="$errors->get('username')" />
+            <p class="mt-2 text-sm text-slate-600">Used for your public profile URL: /u/{{ old('username', $user->username) }}</p>
+        </div>
+
+        <div>
             <label for="email" class="bb-label">{{ __('Email') }}</label>
             <input id="email" name="email" type="email" class="bb-input" value="{{ old('email', $user->email) }}" required autocomplete="username">
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
@@ -79,6 +86,12 @@
             <input id="profile_photo" name="profile_photo" type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="bb-input">
             <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
             <p class="mt-2 text-sm text-slate-600">Leave this empty to keep your current picture.</p>
+        </div>
+
+        <div>
+            <label for="bio" class="bb-label">Bio</label>
+            <textarea id="bio" name="bio" rows="4" class="bb-textarea" maxlength="600" placeholder="Tell people what you love learning and sharing...">{{ old('bio', $user->bio) }}</textarea>
+            <x-input-error class="mt-2" :messages="$errors->get('bio')" />
         </div>
 
         <div class="flex items-center gap-4">

@@ -113,7 +113,7 @@
                             <p class="mt-2 text-sm text-slate-600">{{ $post->summary }}</p>
 
                             <div class="mt-5 flex items-center justify-between text-xs text-slate-500">
-                                <span>By {{ $post->user->name }}</span>
+                                <a href="{{ route('users.show', ['user' => $post->user->username]) }}" class="font-semibold transition hover:text-cyan-700">By {{ $post->user->name }}</a>
                                 <span>{{ $post->comments_count }} comments</span>
                             </div>
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PostController::class, 'index'])->name('home');
@@ -21,6 +22,7 @@ Route::get('/glossary', [PageController::class, 'glossary'])->name('glossary.pag
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [PageController::class, 'submitContact'])->name('contact.submit');
+Route::get('/u/{user:username}', [UserProfileController::class, 'show'])->name('users.show');
 Route::post('/brainbot/chat', [BrainBotController::class, 'chat'])->middleware('throttle:30,1')->name('brainbot.chat');
 Route::get('/brainbot/history', [BrainBotController::class, 'history'])->middleware('throttle:60,1')->name('brainbot.history');
 

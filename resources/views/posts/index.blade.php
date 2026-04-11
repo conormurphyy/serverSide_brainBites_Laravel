@@ -244,7 +244,7 @@
                     @foreach ($topContributors as $contributor)
                         <div class="flex items-center justify-between rounded-xl border border-slate-200/80 bg-white p-3">
                             <div>
-                                <p class="font-semibold text-slate-900">{{ $contributor->name }}</p>
+                                <a href="{{ route('users.show', ['user' => $contributor->username]) }}" class="font-semibold text-slate-900 transition hover:text-cyan-700">{{ $contributor->name }}</a>
                                 <p class="text-xs text-slate-500">{{ $contributor->public_posts_count }} public posts • {{ $contributor->followers_count }} followers</p>
                             </div>
                             <div class="flex items-center gap-2">
@@ -331,7 +331,7 @@
                     <p class="mt-2 text-sm text-slate-600">{!! $highlight($post->summary) !!}</p>
 
                     <div class="mt-5 flex items-center justify-between text-xs text-slate-500">
-                        <span>By {{ $post->user->name }}</span>
+                        <a href="{{ route('users.show', ['user' => $post->user->username]) }}" class="font-semibold transition hover:text-cyan-700">By {{ $post->user->name }}</a>
                         <div class="flex items-center gap-2">
                             <span>{{ $post->likes_count }} likes</span>
                             @auth

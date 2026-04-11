@@ -56,7 +56,7 @@
         <div id="postPrimaryColumn" class="lg:col-span-2">
             <div class="mb-4 flex items-center gap-3">
                 <span class="{{ $post->category_badge_class }}">{{ $post->category->name }}</span>
-                <span class="text-xs text-slate-700">By {{ $post->user->name }}</span>
+                <a href="{{ route('users.show', ['user' => $post->user->username]) }}" class="text-xs font-semibold text-slate-700 transition hover:text-cyan-700">By {{ $post->user->name }}</a>
                 <span class="text-xs text-slate-600">{{ $post->reading_time_minutes }} min read</span>
                 @auth
                     @if (! auth()->user()->isAdmin() && auth()->id() !== $post->user_id)

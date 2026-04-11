@@ -18,6 +18,15 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'username' => [
+                'required',
+                'string',
+                'min:3',
+                'max:60',
+                'regex:/^[a-zA-Z0-9_]+$/',
+                Rule::unique(User::class)->ignore($this->user()->id),
+            ],
+            'bio' => ['nullable', 'string', 'max:600'],
             'email' => [
                 'required',
                 'string',
