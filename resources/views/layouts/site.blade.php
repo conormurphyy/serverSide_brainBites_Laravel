@@ -107,6 +107,15 @@
         </header>
 
         <main class="bb-shell py-8 sm:py-10 lg:py-12">
+            @unless (request()->routeIs('home') || request()->routeIs('posts.index'))
+                <div class="mb-5">
+                    <button type="button" class="bb-back-nav" data-back-nav data-fallback-url="{{ route('home') }}" aria-label="Go back to previous page">
+                        <span aria-hidden="true">&larr;</span>
+                        Back
+                    </button>
+                </div>
+            @endunless
+
             @if (session('status'))
                 <div class="mb-6 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                     {{ session('status') }}

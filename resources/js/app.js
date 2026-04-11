@@ -9,6 +9,7 @@ Alpine.start();
 document.addEventListener('DOMContentLoaded', () => {
 	initializePwa();
 	initializeMobileNav();
+	initializeBackNavigation();
 	initializeThemeToggle();
 	initializeTopicMap();
 	initializePageHero3D();
@@ -36,6 +37,27 @@ document.addEventListener('DOMContentLoaded', () => {
 	initializeDashboardPinboard();
 
 	document.body.classList.remove('bb-calm-focus');
+
+function initializeBackNavigation() {
+	const backButtons = document.querySelectorAll('[data-back-nav]');
+
+	if (!backButtons.length) {
+		return;
+	}
+
+	backButtons.forEach((button) => {
+		button.addEventListener('click', () => {
+			const fallbackUrl = button.getAttribute('data-fallback-url') || '/';
+
+			if (window.history.length > 1) {
+				window.history.back();
+				return;
+			}
+
+			window.location.href = fallbackUrl;
+		});
+	});
+}
 	localStorage.removeItem('bb-calm-focus');
 
 	const counterInputs = document.querySelectorAll('[data-counter-target]');
