@@ -183,41 +183,41 @@
                     </div>
                 </div>
             @endif
-
-            <section class="bb-card mt-4">
-                <div class="flex items-center justify-between gap-3">
-                    <h2 class="text-lg font-bold text-slate-900">Comments</h2>
-                    <span class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">{{ $post->comments->count() }} total</span>
-                </div>
-
-                @auth
-                    <form action="{{ route('comments.store', $post) }}" method="POST" class="mt-4 grid gap-3">
-                        @csrf
-                        <div>
-                            <label for="commentBody" class="bb-label">Add a comment</label>
-                            <textarea id="commentBody" name="body" rows="4" class="bb-textarea" maxlength="1000" required placeholder="Share a thought, add context, or ask a follow-up.">{{ old('body') }}</textarea>
-                            @error('body')<p class="bb-error">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <button type="submit" class="bb-button">Post Comment</button>
-                        </div>
-                    </form>
-                @else
-                    <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                        <a href="{{ route('login') }}" class="font-semibold text-cyan-700">Log in</a> to join the discussion.
-                    </div>
-                @endauth
-
-                <div class="mt-5 space-y-4">
-                    @forelse ($post->comments->whereNull('parent_comment_id')->sortByDesc('created_at') as $comment)
-                        @include('posts.partials.comment', ['post' => $post, 'comment' => $comment, 'depth' => 0])
-                    @empty
-                        <p class="text-sm text-slate-700">No comments yet. Start the conversation.</p>
-                    @endforelse
-                </div>
-            </section>
         </aside>
     </article>
+
+    <section class="bb-card mb-8">
+        <div class="flex items-center justify-between gap-3">
+            <h2 class="text-lg font-bold text-slate-900">Comments</h2>
+            <span class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">{{ $post->comments->count() }} total</span>
+        </div>
+
+        @auth
+            <form action="{{ route('comments.store', $post) }}" method="POST" class="mt-4 grid gap-3">
+                @csrf
+                <div>
+                    <label for="commentBody" class="bb-label">Add a comment</label>
+                    <textarea id="commentBody" name="body" rows="4" class="bb-textarea" maxlength="1000" required placeholder="Share a thought, add context, or ask a follow-up.">{{ old('body') }}</textarea>
+                    @error('body')<p class="bb-error">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <button type="submit" class="bb-button">Post Comment</button>
+                </div>
+            </form>
+        @else
+            <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                <a href="{{ route('login') }}" class="font-semibold text-cyan-700">Log in</a> to join the discussion.
+            </div>
+        @endauth
+
+        <div class="mt-5 space-y-4">
+            @forelse ($post->comments->whereNull('parent_comment_id')->sortByDesc('created_at') as $comment)
+                @include('posts.partials.comment', ['post' => $post, 'comment' => $comment, 'depth' => 0])
+            @empty
+                <p class="text-sm text-slate-700">No comments yet. Start the conversation.</p>
+            @endforelse
+        </div>
+    </section>
 
     <section class="bb-card mb-8" id="postChatPanel">
         <div class="flex flex-wrap items-center justify-between gap-3">
