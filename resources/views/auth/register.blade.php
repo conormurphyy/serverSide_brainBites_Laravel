@@ -1,7 +1,9 @@
 <x-guest-layout>
-    <div class="mb-4 flex flex-wrap items-center gap-2">
-        <a href="{{ route('home') }}" class="bb-button-secondary !px-3 !py-1.5 !text-xs">Back to Home</a>
-        <a href="{{ route('posts.index') }}" class="bb-button-secondary !px-3 !py-1.5 !text-xs">Explore Posts</a>
+    <div class="mb-4">
+        <button type="button" class="bb-back-nav" data-back-nav data-fallback-url="{{ route('home') }}" aria-label="Go back to previous page">
+            <span aria-hidden="true">&larr;</span>
+            Back
+        </button>
     </div>
 
     <form method="POST" action="{{ route('register') }}">

@@ -453,6 +453,42 @@ html.dark body .bb-atmosphere::after {
 		color: #cbd5e1;
 	}
 
+	html.dark body .text-gray-900,
+	html.dark body .text-gray-800,
+	html.dark body .text-gray-700 {
+		color: #e2e8f0;
+	}
+
+	html.dark body .text-gray-600,
+	html.dark body .text-gray-500,
+	html.dark body .text-gray-400 {
+		color: #cbd5e1;
+	}
+
+	html.dark body .hover\:text-gray-900:hover,
+	html.dark body .hover\:text-gray-800:hover,
+	html.dark body .hover\:text-gray-700:hover {
+		color: #f8fafc;
+	}
+
+	html.dark body .bg-gray-100,
+	html.dark body .bg-gray-50 {
+		background-color: rgba(30, 41, 59, 0.62);
+	}
+
+	html.dark body .border-gray-200,
+	html.dark body .border-gray-300,
+	html.dark body .border-gray-400 {
+		border-color: rgba(71, 85, 105, 0.82);
+	}
+
+	html.dark body .hover\:bg-gray-50:hover,
+	html.dark body .hover\:bg-gray-100:hover,
+	html.dark body .focus\:bg-gray-50:focus,
+	html.dark body .focus\:bg-gray-100:focus {
+		background-color: rgba(51, 65, 85, 0.68);
+	}
+
     html.dark body .prose a {
         color: #38bdf8;
     }
