@@ -1,3 +1,5 @@
+<img src="Untitleddesign-ezgif.com-video-to-gif-converter.gif" />
+
 # BrainBites
 
 Visual-first Q&A platform built with Laravel, designed for curiosity-driven learning.
