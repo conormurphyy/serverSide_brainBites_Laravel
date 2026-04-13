@@ -69,7 +69,7 @@
             type="file"
             id="image"
             name="image"
-            class="bb-input"
+            class="bb-file-input"
             accept=".jpg,.jpeg,.png,.webp"
             @if (! $editing) required @endif
         >

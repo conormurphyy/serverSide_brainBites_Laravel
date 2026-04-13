@@ -212,7 +212,7 @@
                 </div>
                 <div>
                     <label for="commentImage" class="bb-label">Attach image (optional)</label>
-                    <input id="commentImage" type="file" name="image" accept="image/*" class="bb-input">
+                    <input id="commentImage" type="file" name="image" accept="image/*" class="bb-file-input">
                     @error('image')<p class="bb-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-slate-50 p-3" data-comment-voice>

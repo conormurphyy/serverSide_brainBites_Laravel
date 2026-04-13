@@ -86,7 +86,7 @@
                 </div>
                 <div>
                     <label class="bb-label" for="replyImage-{{ $comment->id }}">Attach image (optional)</label>
-                    <input id="replyImage-{{ $comment->id }}" type="file" name="image" accept="image/*" class="bb-input">
+                    <input id="replyImage-{{ $comment->id }}" type="file" name="image" accept="image/*" class="bb-file-input">
                     @error('image')<p class="bb-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-white p-3" data-comment-voice>

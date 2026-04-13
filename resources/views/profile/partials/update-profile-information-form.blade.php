@@ -187,14 +187,14 @@
 
         <div>
             <label for="profile_photo" class="bb-label">{{ __('Profile Picture') }}</label>
-            <input id="profile_photo" name="profile_photo" type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="bb-input" @change="loadPreview($event, 'avatar')">
+            <input id="profile_photo" name="profile_photo" type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="bb-file-input" @change="loadPreview($event, 'avatar')">
             <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
             <p class="mt-2 text-sm text-slate-600">Leave this empty to keep your current picture.</p>
         </div>
 
         <div>
             <label for="cover_image" class="bb-label">Cover Image</label>
-            <input id="cover_image" name="cover_image" type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="bb-input" @change="loadPreview($event, 'cover')">
+            <input id="cover_image" name="cover_image" type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="bb-file-input" @change="loadPreview($event, 'cover')">
             <x-input-error class="mt-2" :messages="$errors->get('cover_image')" />
             <p class="mt-2 text-sm text-slate-600">Wide image recommended. Leave empty to keep current cover.</p>
         </div>

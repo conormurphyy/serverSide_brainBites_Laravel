@@ -555,6 +555,50 @@ html.dark body .bb-atmosphere::after {
 		@apply mt-2 block w-full rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-cyan-500 focus:ring-cyan-500;
 	}
 
+	.bb-file-input {
+		@apply mt-2 block w-full overflow-hidden rounded-lg border border-slate-300 bg-white text-sm text-slate-700 shadow-sm focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-500/30;
+		padding: 0;
+	}
+
+	.bb-file-input::file-selector-button {
+		@apply mr-4 border-0 bg-cyan-700 px-4 py-2 text-sm font-semibold text-white transition;
+		border-top-left-radius: 0.5rem;
+		border-bottom-left-radius: 0.5rem;
+	}
+
+	.bb-file-input::file-selector-button:hover {
+		background: #0e7490;
+	}
+
+	.bb-file-input::file-selector-button:active {
+		background: #155e75;
+	}
+
+	.bb-file-input::-webkit-file-upload-button {
+		@apply mr-4 border-0 bg-cyan-700 px-4 py-2 text-sm font-semibold text-white transition;
+		border-top-left-radius: 0.5rem;
+		border-bottom-left-radius: 0.5rem;
+	}
+
+	.bb-file-input::-webkit-file-upload-button:hover {
+		background: #0e7490;
+	}
+
+	html.dark body .bb-file-input {
+		@apply border-slate-600 bg-slate-900 text-slate-100;
+	}
+
+	html.dark body .bb-file-input::file-selector-button,
+	html.dark body .bb-file-input::-webkit-file-upload-button {
+		background: linear-gradient(135deg, #0e7490, #155e75);
+		color: #ecfeff;
+	}
+
+	html.dark body .bb-file-input::file-selector-button:hover,
+	html.dark body .bb-file-input::-webkit-file-upload-button:hover {
+		background: #0b5d74;
+	}
+
 	.bb-label {
 		@apply text-sm font-semibold text-slate-700;
 	}
