@@ -34,13 +34,15 @@
         }
 
         function resetButton(button) {
-            button.textContent = 'Mic';
+            button.innerHTML = button.dataset.iconMic || '';
+            button.setAttribute('aria-label', 'Start voice to text');
             button.setAttribute('aria-pressed', 'false');
             button.classList.remove('bb-vtt-button--listening');
         }
 
         function setListening(button) {
-            button.textContent = 'Stop';
+            button.innerHTML = button.dataset.iconStop || '';
+            button.setAttribute('aria-label', 'Stop voice to text');
             button.setAttribute('aria-pressed', 'true');
             button.classList.add('bb-vtt-button--listening');
         }
@@ -56,15 +58,23 @@
 
             field.dataset.bbVoiceAttached = 'true';
 
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bb-vtt-wrap';
+            field.parentNode?.insertBefore(wrapper, field);
+            wrapper.appendChild(field);
+            field.classList.add('bb-vtt-field');
+
             const button = document.createElement('button');
             button.type = 'button';
-            button.textContent = 'Mic';
             button.className = 'bb-vtt-button';
             button.setAttribute('aria-label', 'Start voice to text');
             button.setAttribute('aria-pressed', 'false');
             button.title = 'Voice to text';
+            button.dataset.iconMic = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="bb-vtt-icon"><path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3zm5-3a1 1 0 1 0-2 0 3 3 0 0 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.1A5 5 0 0 0 17 12z"/></svg>';
+            button.dataset.iconStop = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="bb-vtt-icon"><path d="M7 7h10v10H7z"/></svg>';
+            button.innerHTML = button.dataset.iconMic;
 
-            field.insertAdjacentElement('afterend', button);
+            wrapper.appendChild(button);
 
             button.addEventListener('click', () => {
                 const current = activeRecognition.get(field);
@@ -158,17 +168,32 @@
 </script>
 
 <style>
+    .bb-vtt-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+    .bb-vtt-wrap .bb-vtt-field {
+        padding-right: 3rem !important;
+    }
+
     .bb-vtt-button {
-        margin-top: 0.4rem;
-        margin-left: 0.2rem;
+        position: absolute;
+        top: 50%;
+        right: 0.45rem;
+        transform: translateY(-50%);
+        z-index: 2;
         border: 1px solid rgba(14, 116, 144, 0.35);
         border-radius: 9999px;
-        padding: 0.2rem 0.65rem;
-        font-size: 0.75rem;
-        font-weight: 600;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
         color: #0f172a;
         background: #f0fdfa;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .bb-vtt-button:hover {
@@ -179,5 +204,16 @@
         background: #fef2f2;
         border-color: rgba(220, 38, 38, 0.5);
         color: #991b1b;
+    }
+
+    .bb-vtt-icon {
+        width: 1rem;
+        height: 1rem;
+        fill: currentColor;
+    }
+
+    .bb-vtt-wrap textarea + .bb-vtt-button {
+        top: 0.5rem;
+        transform: none;
     }
 </style>
