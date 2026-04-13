@@ -20,6 +20,7 @@
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,700|instrument-serif:400" rel="stylesheet" />
+        @include('partials.theme-init')
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body>
