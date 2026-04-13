@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Comment extends Model
 {
@@ -17,6 +18,13 @@ class Comment extends Model
         'post_id',
         'parent_comment_id',
         'body',
+        'image_path',
+        'voice_note_path',
+        'voice_note_duration',
+    ];
+
+    protected $casts = [
+        'voice_note_duration' => 'float',
     ];
 
     public function user(): BelongsTo
@@ -61,5 +69,23 @@ class Comment extends Model
         }
 
         return $this->votes->contains('user_id', $user->id);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! $this->image_path) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->image_path);
+    }
+
+    public function getVoiceNoteUrlAttribute(): ?string
+    {
+        if (! $this->voice_note_path) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->voice_note_path);
     }
 }

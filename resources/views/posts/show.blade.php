@@ -203,12 +203,30 @@
         </div>
 
         @auth
-            <form action="{{ route('comments.store', $post) }}" method="POST" class="mt-4 grid gap-3" data-comment-form>
+            <form action="{{ route('comments.store', $post) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid gap-3" data-comment-form>
                 @csrf
                 <div>
                     <label for="commentBody" class="bb-label">Add a comment</label>
-                    <textarea id="commentBody" name="body" rows="4" class="bb-textarea" maxlength="1000" required placeholder="Share a thought, add context, or ask a follow-up.">{{ old('body') }}</textarea>
+                    <textarea id="commentBody" name="body" rows="4" class="bb-textarea" maxlength="1000" placeholder="Share a thought, add context, or ask a follow-up.">{{ old('body') }}</textarea>
                     @error('body')<p class="bb-error">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label for="commentImage" class="bb-label">Attach image (optional)</label>
+                    <input id="commentImage" type="file" name="image" accept="image/*" class="bb-input">
+                    @error('image')<p class="bb-error">{{ $message }}</p>@enderror
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3" data-comment-voice>
+                    <p class="bb-label">Voice note (optional, up to 30 seconds)</p>
+                    <input type="file" name="voice_note" accept="audio/webm,audio/ogg,audio/mpeg,audio/mp4,audio/wav,audio/x-wav,audio/aac" class="sr-only" data-comment-voice-input>
+                    <input type="hidden" name="voice_note_duration" value="" data-comment-voice-duration>
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                        <button type="button" class="bb-button-secondary !px-3 !py-1.5 !text-xs" data-comment-voice-start>Record</button>
+                        <button type="button" class="bb-button-secondary !px-3 !py-1.5 !text-xs" data-comment-voice-stop disabled>Stop</button>
+                        <button type="button" class="bb-button-secondary !px-3 !py-1.5 !text-xs" data-comment-voice-clear disabled>Clear</button>
+                    </div>
+                    <p class="mt-2 text-xs text-slate-600" data-comment-voice-status>No voice note recorded yet.</p>
+                    @error('voice_note')<p class="bb-error">{{ $message }}</p>@enderror
+                    @error('voice_note_duration')<p class="bb-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <button type="submit" class="bb-button">Post Comment</button>
@@ -245,6 +263,126 @@
         </form>
         <div id="postChatAnswer" class="bb-inline-answer mt-3" hidden></div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!window.MediaRecorder || !navigator.mediaDevices?.getUserMedia) {
+                return;
+            }
+
+            document.querySelectorAll('[data-comment-voice]').forEach((scope) => {
+                const startButton = scope.querySelector('[data-comment-voice-start]');
+                const stopButton = scope.querySelector('[data-comment-voice-stop]');
+                const clearButton = scope.querySelector('[data-comment-voice-clear]');
+                const status = scope.querySelector('[data-comment-voice-status]');
+                const fileInput = scope.querySelector('[data-comment-voice-input]');
+                const durationInput = scope.querySelector('[data-comment-voice-duration]');
+
+                if (!startButton || !stopButton || !clearButton || !status || !fileInput || !durationInput) {
+                    return;
+                }
+
+                let recorder = null;
+                let chunks = [];
+                let stream = null;
+                let startedAt = 0;
+                let autoStopTimer = 0;
+
+                const setIdle = () => {
+                    startButton.disabled = false;
+                    stopButton.disabled = true;
+                };
+
+                const resetVoice = () => {
+                    const transfer = new DataTransfer();
+                    fileInput.files = transfer.files;
+                    durationInput.value = '';
+                    clearButton.disabled = true;
+                    status.textContent = 'No voice note recorded yet.';
+                };
+
+                const stopTracks = () => {
+                    if (!stream) {
+                        return;
+                    }
+
+                    stream.getTracks().forEach((track) => track.stop());
+                    stream = null;
+                };
+
+                startButton.addEventListener('click', async () => {
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    } catch {
+                        status.textContent = 'Microphone permission denied or unavailable.';
+                        return;
+                    }
+
+                    chunks = [];
+                    recorder = new MediaRecorder(stream);
+                    startedAt = Date.now();
+
+                    recorder.ondataavailable = (event) => {
+                        if (event.data && event.data.size > 0) {
+                            chunks.push(event.data);
+                        }
+                    };
+
+                    recorder.onstop = () => {
+                        window.clearTimeout(autoStopTimer);
+
+                        const elapsedSeconds = Math.min(30, Math.max(0.1, (Date.now() - startedAt) / 1000));
+                        const mimeType = recorder?.mimeType || 'audio/webm';
+                        const blob = new Blob(chunks, { type: mimeType });
+
+                        if (blob.size > 0) {
+                            const extension = mimeType.includes('ogg') ? 'ogg' : mimeType.includes('mpeg') ? 'mp3' : mimeType.includes('wav') ? 'wav' : mimeType.includes('mp4') ? 'm4a' : 'webm';
+                            const file = new File([blob], `comment-voice-note.${extension}`, { type: mimeType });
+                            const transfer = new DataTransfer();
+                            transfer.items.add(file);
+                            fileInput.files = transfer.files;
+                            durationInput.value = elapsedSeconds.toFixed(1);
+                            clearButton.disabled = false;
+                            status.textContent = `Voice note ready (${elapsedSeconds.toFixed(1)}s).`;
+                        } else {
+                            resetVoice();
+                        }
+
+                        recorder = null;
+                        chunks = [];
+                        stopTracks();
+                        setIdle();
+                    };
+
+                    recorder.start();
+                    startButton.disabled = true;
+                    stopButton.disabled = false;
+                    status.textContent = 'Recording... it will stop at 30 seconds.';
+
+                    autoStopTimer = window.setTimeout(() => {
+                        if (recorder && recorder.state !== 'inactive') {
+                            recorder.stop();
+                        }
+                    }, 30000);
+                });
+
+                stopButton.addEventListener('click', () => {
+                    if (recorder && recorder.state !== 'inactive') {
+                        recorder.stop();
+                    }
+                });
+
+                clearButton.addEventListener('click', () => {
+                    if (recorder && recorder.state !== 'inactive') {
+                        recorder.stop();
+                    }
+                    resetVoice();
+                });
+
+                setIdle();
+            });
+        });
+    </script>
 
     <section class="bb-card mb-8" id="flashcardsPanel">
         <div class="flex flex-wrap items-center justify-between gap-3">

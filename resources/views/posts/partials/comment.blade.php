@@ -34,7 +34,27 @@
         @endauth
     </div>
 
-    <p class="mt-3 whitespace-pre-wrap text-sm text-slate-700">{{ $comment->body }}</p>
+    @if (filled($comment->body))
+        <p class="mt-3 whitespace-pre-wrap text-sm text-slate-700">{{ $comment->body }}</p>
+    @endif
+
+    @if ($comment->image_url)
+        <div class="mt-3">
+            <a href="{{ $comment->image_url }}" target="_blank" rel="noopener noreferrer" class="inline-block rounded-xl border border-slate-200 bg-slate-50 p-1">
+                <img src="{{ $comment->image_url }}" alt="Comment image from {{ $comment->user->name }}" class="max-h-72 rounded-lg object-cover">
+            </a>
+        </div>
+    @endif
+
+    @if ($comment->voice_note_url)
+        <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Voice note{{ $comment->voice_note_duration ? ' ('.number_format($comment->voice_note_duration, 1).'s)' : '' }}</p>
+            <audio controls preload="metadata" class="mt-2 w-full">
+                <source src="{{ $comment->voice_note_url }}">
+                Your browser does not support audio playback.
+            </audio>
+        </div>
+    @endif
 
     <div class="mt-3 flex items-center gap-3">
         <span class="text-xs font-semibold text-slate-500" data-comment-upvote-count>{{ $upvotes }} {{ \Illuminate\Support\Str::plural('upvote', $upvotes) }}</span>
@@ -56,13 +76,31 @@
     @auth
         <details class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
             <summary class="cursor-pointer text-sm font-semibold text-cyan-700">Reply</summary>
-            <form action="{{ route('comments.store', $post) }}" method="POST" class="mt-3 grid gap-3" data-comment-form>
+            <form action="{{ route('comments.store', $post) }}" method="POST" enctype="multipart/form-data" class="mt-3 grid gap-3" data-comment-form>
                 @csrf
                 <input type="hidden" name="parent_comment_id" value="{{ $comment->id }}">
                 <div>
                     <label class="sr-only" for="replyBody-{{ $comment->id }}">Reply to {{ $comment->user->name }}</label>
-                    <textarea id="replyBody-{{ $comment->id }}" name="body" rows="3" class="bb-textarea" maxlength="1000" required placeholder="Write a reply to {{ $comment->user->name }}...">{{ old('body') }}</textarea>
+                    <textarea id="replyBody-{{ $comment->id }}" name="body" rows="3" class="bb-textarea" maxlength="1000" placeholder="Write a reply to {{ $comment->user->name }}...">{{ old('body') }}</textarea>
                     @error('body')<p class="bb-error">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="bb-label" for="replyImage-{{ $comment->id }}">Attach image (optional)</label>
+                    <input id="replyImage-{{ $comment->id }}" type="file" name="image" accept="image/*" class="bb-input">
+                    @error('image')<p class="bb-error">{{ $message }}</p>@enderror
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-white p-3" data-comment-voice>
+                    <p class="bb-label">Voice note (optional, up to 30 seconds)</p>
+                    <input type="file" name="voice_note" accept="audio/webm,audio/ogg,audio/mpeg,audio/mp4,audio/wav,audio/x-wav,audio/aac" class="sr-only" data-comment-voice-input>
+                    <input type="hidden" name="voice_note_duration" value="" data-comment-voice-duration>
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                        <button type="button" class="bb-button-secondary !px-3 !py-1.5 !text-xs" data-comment-voice-start>Record</button>
+                        <button type="button" class="bb-button-secondary !px-3 !py-1.5 !text-xs" data-comment-voice-stop disabled>Stop</button>
+                        <button type="button" class="bb-button-secondary !px-3 !py-1.5 !text-xs" data-comment-voice-clear disabled>Clear</button>
+                    </div>
+                    <p class="mt-2 text-xs text-slate-600" data-comment-voice-status>No voice note recorded yet.</p>
+                    @error('voice_note')<p class="bb-error">{{ $message }}</p>@enderror
+                    @error('voice_note_duration')<p class="bb-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <button type="submit" class="bb-button">Post Reply</button>
