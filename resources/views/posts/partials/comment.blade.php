@@ -98,6 +98,10 @@
                         <button type="button" class="bb-button-secondary !px-3 !py-1.5 !text-xs" data-comment-voice-stop disabled>Stop</button>
                         <button type="button" class="bb-button-secondary !px-3 !py-1.5 !text-xs" data-comment-voice-clear disabled>Clear</button>
                     </div>
+                    <div class="mt-3 rounded-xl border border-slate-200 bg-white p-3" data-comment-voice-preview hidden>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Preview before posting</p>
+                        <audio controls preload="metadata" class="mt-2 w-full" data-comment-voice-audio></audio>
+                    </div>
                     <p class="mt-2 text-xs text-slate-600" data-comment-voice-status>No voice note recorded yet.</p>
                     @error('voice_note')<p class="bb-error">{{ $message }}</p>@enderror
                     @error('voice_note_duration')<p class="bb-error">{{ $message }}</p>@enderror
