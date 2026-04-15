@@ -212,11 +212,3 @@ BrainBites is now a polished Laravel-based, visual-first Q&A platform focused on
 - Database schema, migrations, and frontend asset builds are in place
 - The project is in a final, usable state and ready for continued iteration or deployment hardening
 
-### Suggested Next Steps
-
-- Add notifications for replies, upvotes, and follow activity
-- Improve search and discovery for posts and profiles
-- Expand real-time updates for comments and engagement
-- Continue performance and security hardening before production release
-
-
