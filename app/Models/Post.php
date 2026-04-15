@@ -24,6 +24,11 @@ class Post extends Model
         'image_mime',
         'image_base64',
         'is_public',
+        'approval_status',
+        'approved_by',
+        'approved_at',
+        'rejected_at',
+        'review_notes',
         'published_at',
     ];
 
@@ -32,6 +37,8 @@ class Post extends Model
         return [
             'is_public' => 'boolean',
             'published_at' => 'datetime',
+            'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
         ];
     }
 
@@ -68,10 +75,21 @@ class Post extends Model
     public function scopePublic(Builder $query): Builder
     {
         return $query->where('is_public', true)
+            ->where('approval_status', 'approved')
+            ->whereNotNull('approved_at')
             ->where(function (Builder $nested): void {
                 $nested->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             });
+    }
+
+    public function isPublishedPublicly(): bool
+    {
+        if (! $this->is_public || $this->approval_status !== 'approved' || ! $this->approved_at) {
+            return false;
+        }
+
+        return ! $this->published_at || $this->published_at->lte(now());
     }
 
     public function getImageSourceAttribute(): string

@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'username', 'bio', 'email', 'role', 'password', 'google_id', 'profile_photo_path', 'cover_image_path', 'social_links', 'topic_badges'])]
+#[Fillable(['name', 'username', 'bio', 'email', 'role', 'is_banned', 'banned_at', 'ban_reason', 'password', 'google_id', 'profile_photo_path', 'cover_image_path', 'social_links', 'topic_badges'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -38,6 +38,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'social_links' => 'array',
             'topic_badges' => 'array',
+            'is_banned' => 'boolean',
+            'banned_at' => 'datetime',
         ];
     }
 
@@ -99,6 +101,11 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isBanned(): bool
+    {
+        return (bool) $this->is_banned;
     }
 
     public function isFollowing(?User $user): bool

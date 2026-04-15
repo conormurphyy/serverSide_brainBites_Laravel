@@ -13,7 +13,7 @@ class LikeController extends Controller
     {
         abort_if($request->user()->isAdmin(), 403);
 
-        if (! $post->is_public && $request->user()->cannot('view', $post)) {
+        if ($request->user()->cannot('view', $post)) {
             abort(403);
         }
 

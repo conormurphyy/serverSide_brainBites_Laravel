@@ -144,6 +144,7 @@
                         <th class="px-3 py-2">Title</th>
                         <th class="px-3 py-2">Category</th>
                         <th class="px-3 py-2">Visibility</th>
+                        <th class="px-3 py-2">Moderation</th>
                         <th class="px-3 py-2">Likes</th>
                         <th class="px-3 py-2">Comments</th>
                         <th class="px-3 py-2">Actions</th>
@@ -167,6 +168,7 @@
                                 @endif
                             </td>
                             <td class="px-3 py-3 text-slate-600">{{ $post->is_public ? 'Public' : 'Draft' }}</td>
+                            <td class="px-3 py-3 text-slate-600">{{ ucfirst($post->approval_status ?? 'approved') }}</td>
                             <td class="px-3 py-3 text-slate-600">{{ $post->likes_count }}</td>
                             <td class="px-3 py-3 text-slate-600">{{ $post->comments_count }}</td>
                             <td class="px-3 py-3">

@@ -95,11 +95,7 @@ class CommentController extends Controller
 
     private function assertCanViewPost(Request $request, Post $post): void
     {
-        $isScheduledForFuture = $post->is_public
-            && $post->published_at
-            && $post->published_at->isFuture();
-
-        if ((! $post->is_public || $isScheduledForFuture) && (! auth()->check() || auth()->user()->cannot('view', $post))) {
+        if ($request->user()->cannot('view', $post)) {
             abort(403);
         }
     }

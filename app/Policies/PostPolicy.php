@@ -20,7 +20,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return $post->is_public || $post->user_id === $user->id || $user->isAdmin();
+        return $post->isPublishedPublicly() || $post->user_id === $user->id || $user->isAdmin();
     }
 
     /**

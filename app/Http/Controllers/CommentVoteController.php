@@ -15,6 +15,7 @@ class CommentVoteController extends Controller
     {
         abort_if($request->user()->isAdmin(), 403);
         abort_unless($comment->post_id === $post->id, 404);
+        abort_if($request->user()->cannot('view', $post), 403);
 
         $vote = CommentVote::query()
             ->where('user_id', $request->user()->id)
