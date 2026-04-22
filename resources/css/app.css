@@ -836,20 +836,27 @@ html.dark body .bb-atmosphere::after {
 
 	.bb-answer-voice {
 		display: flex;
-		gap: 0.45rem;
-		margin-top: 0.45rem;
+		gap: 1.2rem;
+		margin-top: 1rem;
+		margin-bottom: 0.35rem;
+		align-items: center;
 	}
 
 	.bb-voice-chip {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-width: 64px;
-		padding: 0.25rem 0.7rem;
-		font-size: 0.72rem;
+		min-width: 94px;
+		padding: 0.58rem 1.2rem;
+		font-size: 0.86rem;
 		font-weight: 700;
-		line-height: 1.1;
+		line-height: 1.25;
 		cursor: pointer;
+		border-radius: 0.65rem;
+	}
+
+	.bb-answer-voice .bb-voice-chip + .bb-voice-chip {
+		margin-left: 0.3rem;
 	}
 
 	.bb-voice-chip:disabled {

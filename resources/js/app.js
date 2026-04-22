@@ -800,6 +800,9 @@ function attachAnswerVoiceControl(container, text) {
 
 	const controls = document.createElement('div');
 	controls.className = 'bb-answer-voice';
+	controls.style.display = 'flex';
+	controls.style.columnGap = '1.2rem';
+	controls.style.rowGap = '0.8rem';
 
 	const toggle = document.createElement('button');
 	toggle.type = 'button';
@@ -811,6 +814,7 @@ function attachAnswerVoiceControl(container, text) {
 	stop.className = 'bb-button-secondary bb-voice-chip';
 	stop.textContent = 'Stop';
 	stop.disabled = true;
+	stop.style.marginLeft = '1rem';
 
 	let active = false;
 	let paused = false;
