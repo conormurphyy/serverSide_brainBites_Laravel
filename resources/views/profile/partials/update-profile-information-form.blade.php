@@ -40,6 +40,25 @@
         </div>
     </div>
 
+    <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-slate-900">GitHub account</p>
+                <p class="text-sm text-slate-600">
+                    {{ $user->github_id ? 'Connected to GitHub sign-in.' : 'Not connected yet. Link GitHub for one-click sign-in.' }}
+                </p>
+            </div>
+
+            @if ($user->github_id)
+                <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Connected</span>
+            @else
+                <a href="{{ route('auth.github.link') }}" class="bb-button-secondary inline-flex justify-center">
+                    Connect GitHub Account
+                </a>
+            @endif
+        </div>
+    </div>
+
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
