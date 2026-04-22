@@ -33,22 +33,22 @@
         </div>
     </section>
 
-    <section class="bb-brainbot bb-brainbot-standalone" id="brainbotPanel" aria-live="polite" style="font-size: 1rem;">
-        <header class="bb-brainbot-header" style="padding: 1rem 1.1rem;">
-            <h2 style="font-size: 1.3rem; line-height: 1.2;">Brain Bot</h2>
-            <p style="font-size: 0.95rem;">Dedicated learning chat</p>
+    <section class="bb-brainbot bb-brainbot-standalone" id="brainbotPanel" aria-live="polite">
+        <header class="bb-brainbot-header">
+            <h2>Brain Bot</h2>
+            <p>Dedicated learning chat</p>
         </header>
 
-        <div class="bb-brainbot-messages" id="brainbotMessages" style="padding: 1rem; gap: 0.85rem;">
-            <article class="bb-brainbot-message bot" style="font-size: 1.02rem; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;">
+        <div class="bb-brainbot-messages" id="brainbotMessages">
+            <article class="bb-brainbot-message bot">
 Welcome to Brain Bot. Ask a question to begin your session.
             </article>
         </div>
 
-        <form class="bb-brainbot-form" id="brainbotForm" style="padding: 0.9rem;">
+        <form class="bb-brainbot-form" id="brainbotForm">
             <label for="brainbotInput" class="sr-only">Ask Brain Bot</label>
-            <input id="brainbotInput" type="text" maxlength="500" placeholder="Ask Brain Bot anything..." required style="font-size: 1rem; padding: 0.72rem 0.8rem;">
-            <button type="submit" style="font-size: 0.95rem; padding: 0.62rem 1rem;">Send</button>
+            <input id="brainbotInput" type="text" maxlength="500" placeholder="Ask Brain Bot anything..." required>
+            <button type="submit">Send</button>
         </form>
     </section>
 @endsection

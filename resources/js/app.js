@@ -483,15 +483,27 @@ function initializePwa() {
 		return;
 	}
 
-	navigator.serviceWorker.getRegistrations().then((registrations) => {
-		registrations.forEach((registration) => registration.unregister());
-	});
+	const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
-	if ('caches' in window) {
-		caches.keys().then((keys) => {
-			keys.forEach((key) => caches.delete(key));
+	if (isLocalhost) {
+		navigator.serviceWorker.getRegistrations().then((registrations) => {
+			registrations.forEach((registration) => registration.unregister());
 		});
+
+		if ('caches' in window) {
+			caches.keys().then((keys) => {
+				keys.forEach((key) => caches.delete(key));
+			});
+		}
+
+		return;
 	}
+
+	window.addEventListener('load', () => {
+		navigator.serviceWorker.register('/sw.js').catch(() => {
+			// Ignore registration failures to avoid blocking app interactions.
+		});
+	});
 }
 
 async function initializeTopicMap() {
@@ -788,28 +800,17 @@ function attachAnswerVoiceControl(container, text) {
 
 	const controls = document.createElement('div');
 	controls.className = 'bb-answer-voice';
-	controls.style.justifyContent = 'flex-end';
-	controls.style.gap = '0.6rem';
-	controls.style.marginTop = '0.8rem';
-	controls.style.paddingTop = '0.25rem';
-	controls.style.borderTop = '1px solid rgba(148, 163, 184, 0.28)';
 
 	const toggle = document.createElement('button');
 	toggle.type = 'button';
 	toggle.className = 'bb-button-secondary bb-voice-chip';
 	toggle.textContent = 'Start';
-	toggle.style.minWidth = '86px';
-	toggle.style.padding = '0.48rem 0.9rem';
-	toggle.style.fontSize = '0.82rem';
 
 	const stop = document.createElement('button');
 	stop.type = 'button';
 	stop.className = 'bb-button-secondary bb-voice-chip';
 	stop.textContent = 'Stop';
 	stop.disabled = true;
-	stop.style.minWidth = '86px';
-	stop.style.padding = '0.48rem 0.9rem';
-	stop.style.fontSize = '0.82rem';
 
 	let active = false;
 	let paused = false;
@@ -940,12 +941,6 @@ function initializeBrainBot() {
 		const bubble = document.createElement('article');
 		bubble.className = `bb-brainbot-message ${role}`;
 		bubble.textContent = text;
-		bubble.style.whiteSpace = 'pre-wrap';
-		bubble.style.overflowWrap = 'anywhere';
-		bubble.style.wordBreak = 'break-word';
-		bubble.style.fontSize = '1rem';
-		bubble.style.lineHeight = '1.65';
-		bubble.style.padding = '0.82rem 0.95rem';
 
 		if (role === 'bot') {
 			attachAnswerVoiceControl(bubble, text);

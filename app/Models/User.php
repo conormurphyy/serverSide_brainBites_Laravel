@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'username', 'bio', 'email', 'role', 'is_banned', 'banned_at', 'ban_reason', 'password', 'google_id', 'github_id', 'profile_photo_path', 'cover_image_path', 'social_links', 'topic_badges'])]
+#[Fillable(['name', 'username', 'bio', 'email', 'role', 'is_banned', 'banned_at', 'ban_reason', 'password', 'google_id', 'profile_photo_path', 'cover_image_path', 'social_links', 'topic_badges'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
