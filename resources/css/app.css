@@ -836,19 +836,22 @@ html.dark body .bb-atmosphere::after {
 
 	.bb-answer-voice {
 		display: flex;
-		gap: 0.45rem;
-		margin-top: 0.45rem;
+		justify-content: flex-end;
+		gap: 0.6rem;
+		margin-top: 0.8rem;
+		padding-top: 0.25rem;
+		border-top: 1px solid rgba(148, 163, 184, 0.28);
 	}
 
 	.bb-voice-chip {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-width: 64px;
-		padding: 0.25rem 0.7rem;
-		font-size: 0.72rem;
+		min-width: 86px;
+		padding: 0.48rem 0.9rem;
+		font-size: 0.82rem;
 		font-weight: 700;
-		line-height: 1.1;
+		line-height: 1.2;
 		cursor: pointer;
 	}
 
@@ -905,30 +908,32 @@ html.dark body .bb-atmosphere::after {
 
 	.bb-brainbot-header h2 {
 		margin: 0;
-		font-size: 1rem;
+		font-size: 1.2rem;
 		font-weight: 700;
 		color: #ecfeff;
 	}
 
 	.bb-brainbot-header p {
 		margin: 0.25rem 0 0;
-		font-size: 0.75rem;
+		font-size: 0.88rem;
 		color: rgba(186, 230, 253, 0.9);
 	}
 
 	.bb-brainbot-messages {
 		overflow-y: auto;
-		padding: 0.9rem;
+		padding: 1rem;
 		display: flex;
 		flex-direction: column;
-		gap: 0.6rem;
+		gap: 0.8rem;
 	}
 
 	.bb-brainbot-message {
 		white-space: pre-wrap;
-		font-size: 0.85rem;
-		line-height: 1.45;
-		padding: 0.65rem 0.75rem;
+		overflow-wrap: anywhere;
+		word-break: break-word;
+		font-size: 1rem;
+		line-height: 1.65;
+		padding: 0.82rem 0.95rem;
 		border-radius: 0.75rem;
 	}
 
@@ -965,18 +970,29 @@ html.dark body .bb-atmosphere::after {
 		background: rgba(15, 23, 42, 0.8);
 		color: #e2e8f0;
 		border-radius: 0.6rem;
-		font-size: 0.85rem;
-		padding: 0.55rem 0.65rem;
+		font-size: 0.95rem;
+		padding: 0.68rem 0.75rem;
 	}
 
 	.bb-brainbot-form button {
 		border: 1px solid rgba(255, 255, 255, 0.5);
 		background: #06b6d4;
 		color: #082f49;
-		font-size: 0.8rem;
+		font-size: 0.9rem;
 		font-weight: 700;
 		border-radius: 0.6rem;
-		padding: 0.5rem 0.8rem;
+		padding: 0.6rem 0.95rem;
+	}
+
+	.bb-post-card h3,
+	.bb-post-card p,
+	.bb-model-card h3,
+	.bb-model-card p,
+	.bb-feature-card h3,
+	.bb-feature-card p {
+		white-space: normal;
+		overflow-wrap: anywhere;
+		word-break: break-word;
 	}
 
 	.bb-modal {

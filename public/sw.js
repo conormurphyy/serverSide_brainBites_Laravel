@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'brainbites-v2';
+const CACHE_VERSION = 'brainbites-v3';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -61,17 +61,13 @@ self.addEventListener('fetch', (event) => {
 
   if (['style', 'script', 'font', 'image'].includes(request.destination)) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        const networkFetch = fetch(request)
-          .then((response) => {
-            const copy = response.clone();
-            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
-            return response;
-          })
-          .catch(() => cached);
-
-        return cached || networkFetch;
-      })
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => caches.match(request))
     );
   }
 });

@@ -331,8 +331,8 @@
                         @endif
                     </div>
 
-                    <h3 class="mt-4 text-lg font-bold text-slate-900">{!! $highlight($post->title) !!}</h3>
-                    <p class="mt-2 text-sm text-slate-600">{!! $highlight($post->summary) !!}</p>
+                    <h3 class="mt-4 text-lg font-bold text-slate-900" style="white-space: normal; overflow-wrap: anywhere; word-break: break-word;">{!! $highlight($post->title) !!}</h3>
+                    <p class="mt-2 text-sm text-slate-600" style="white-space: normal; overflow-wrap: anywhere; word-break: break-word;">{!! $highlight($post->summary) !!}</p>
 
                     <div class="mt-5 flex items-center justify-between text-xs text-slate-500">
                         @if ($post->user->username)

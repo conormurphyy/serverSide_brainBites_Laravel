@@ -216,7 +216,7 @@
     }
 
     .bb-vtt-wrap .bb-vtt-field {
-        padding-right: 3rem !important;
+        padding-right: 3.7rem !important;
     }
 
     .bb-vtt-button {
@@ -227,9 +227,9 @@
         z-index: 2;
         border: 1px solid rgba(14, 116, 144, 0.35);
         border-radius: 9999px;
-        width: 2rem;
-        height: 2rem;
-        padding: 0;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0.15rem;
         color: #0f172a;
         background: #f0fdfa;
         cursor: pointer;
@@ -249,8 +249,8 @@
     }
 
     .bb-vtt-icon {
-        width: 1rem;
-        height: 1rem;
+        width: 1.35rem;
+        height: 1.35rem;
         fill: currentColor;
     }
 
