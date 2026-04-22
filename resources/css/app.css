@@ -974,7 +974,7 @@ html.dark body .bb-atmosphere::after {
 		padding: 0.68rem 0.75rem;
 	}
 
-	.bb-brainbot-form button {
+	.bb-brainbot-form button[type="submit"] {
 		border: 1px solid rgba(255, 255, 255, 0.5);
 		background: #06b6d4;
 		color: #082f49;
