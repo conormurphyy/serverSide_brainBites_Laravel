@@ -6,7 +6,8 @@ Visual-first Q&A platform built with Laravel, designed for curiosity-driven lear
 
 BrainBites combines community posts, rich visuals, category exploration, and an AI assistant called brainBot in one polished web app.
 
-CA3 Note: Website hosted on [Brainbites.ie](https://brainbites.ie) via fork at (Github Fork)(https://github.com/conormurphyy/serverSide_brainBites_Laravel)
+CA3 Note: Website hosted on [Brainbites.ie](https://brainbites.ie) via fork at [Github Fork](https://github.com/conormurphyy/serverSide_brainBites_Laravel)
+We used a custom domain from GoDaddy and hosting via Microsoft Azure
 
 
 
