@@ -216,19 +216,19 @@
     }
 
     .bb-vtt-wrap .bb-vtt-field {
-        padding-right: 3rem !important;
+        padding-right: 4.6rem !important;
     }
 
     .bb-vtt-button {
         position: absolute;
         top: 50%;
-        right: 0.45rem;
+        right: 0.55rem;
         transform: translateY(-50%);
         z-index: 2;
         border: 1px solid rgba(14, 116, 144, 0.35);
         border-radius: 9999px;
-        width: 2rem;
-        height: 2rem;
+        width: 3rem;
+        height: 3rem;
         padding: 0;
         color: #0f172a;
         background: #f0fdfa;
@@ -249,13 +249,13 @@
     }
 
     .bb-vtt-icon {
-        width: 1rem;
-        height: 1rem;
+        width: 1.8rem;
+        height: 1.8rem;
         fill: currentColor;
     }
 
     .bb-vtt-wrap textarea + .bb-vtt-button {
-        top: 0.5rem;
+        top: 0.65rem;
         transform: none;
     }
 </style>

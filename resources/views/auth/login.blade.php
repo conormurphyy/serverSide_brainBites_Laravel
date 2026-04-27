@@ -18,8 +18,13 @@
             <a href="{{ route('auth.google.redirect') }}" class="flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50">
                 Continue with Google
             </a>
-            <p class="mt-2 text-center text-xs text-gray-500">Use Google to sign in faster without remembering another password.</p>
-            <p class="mt-1 text-center text-xs text-gray-500">If you already have a password account, sign in first and link Google from your profile.</p>
+
+            <a href="{{ route('auth.github.redirect') }}" class="mt-3 flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50">
+                Continue with GitHub
+            </a>
+
+            <p class="mt-2 text-center text-xs text-gray-500">Use Google or GitHub to sign in faster without remembering another password.</p>
+            <p class="mt-1 text-center text-xs text-gray-500">If you already have a password account, sign in first and link your provider from your profile.</p>
         </div>
 
         <!-- Email Address -->
